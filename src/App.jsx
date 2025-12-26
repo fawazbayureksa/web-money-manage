@@ -12,6 +12,9 @@ import Category from './pages/category/Category'
 import { Toaster } from './components/ui/toaster'
 import Logout from './components/Logout'
 import Transaction from './pages/transaction/Transaction'
+import Budget from './pages/budget/Budget'
+import BudgetAlerts from './pages/budget/BudgetAlerts'
+import Financials from './pages/financials/Financials'
 
 function Layout() {
   return (
@@ -60,9 +63,12 @@ function App() {
           <Route path="settings" element={<Settings />} />
           <Route path="banks" element={<Banks />} />
           <Route path="categories" element={<Category />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="logout" element={<Logout onLogout={handleLogout} />} />
           <Route path="transaction" element={<Transaction />} />
+          <Route path="budget" element={<Budget />} />
+          <Route path="budget-alerts" element={<BudgetAlerts />} />
+          <Route path="financials" element={<Financials />} />
+          <Route path="logout" element={<Logout onLogout={handleLogout} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       )}
     </Routes>

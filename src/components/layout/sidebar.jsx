@@ -1,19 +1,19 @@
 import { Box, Flex, Icon, Text, VStack } from '@chakra-ui/react'
-import { FiHome, FiUser, FiSettings, FiDollarSign, FiChrome, FiHardDrive, FiArrowDownLeft, FiArrowLeft, FiPlusSquare, FiPackage } from 'react-icons/fi'
+import { FiHome, FiUser, FiSettings, FiDollarSign, FiChrome, FiHardDrive, FiArrowDownLeft, FiArrowLeft, FiPlusSquare, FiPackage, FiTrendingUp, FiBell, FiPieChart } from 'react-icons/fi'
 import { Link, useLocation } from 'react-router-dom'
 
 const Sidebar = () => {
   const location = useLocation()
   const menuItems = [
     { label: 'Dashboard', icon: FiHome, path: '/' },
+    { label: 'Financials', icon: FiPieChart, path: '/financials' },
     { label: 'Users', icon: FiUser, path: '/users' },
     { label: 'Banks', icon: FiDollarSign, path: '/banks' },
     { label: 'Category', icon: FiHardDrive, path: '/categories' },
-    { label: 'Settings', icon: FiSettings, path: '/settings' },
     { label: 'Transaction', icon: FiPackage, path: '/transaction' },
-    // { label: 'Banking', icon: FiChrome, path: '/banking' },
-    // { label: 'Reports', icon: FiHardDrive, path: '/reports' },
-    // { label: 'Help', icon: FiArrowDownLeft, path: '/help' },
+    { label: 'Budget', icon: FiTrendingUp, path: '/budget' },
+    { label: 'Budget Alerts', icon: FiBell, path: '/budget-alerts' },
+    { label: 'Settings', icon: FiSettings, path: '/settings' },
     { label: 'Logout', icon: FiArrowLeft, path: '/logout' },
   ]
 

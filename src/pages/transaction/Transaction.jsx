@@ -35,15 +35,18 @@ export default function Transaction() {
 
   const fetchBanks = async () => {
     try {
-    let arr = []
-      const response = await axios.get('http://localhost:8080/api/banks')
-        response.data.data.map(bank => {
-            arr.push({
-                label: bank.bank_name,
-                value: bank.id
-            })
+      let arr = []
+      // Fetch all banks with a large page size
+      const response = await axios.get('http://localhost:8080/api/banks?page=1&page_size=100')
+      // Handle paginated response: response.data.data.data
+      const banksData = response.data.data.data || []
+      banksData.map(bank => {
+        arr.push({
+          label: bank.bank_name,
+          value: bank.id
         })
-        setBanks(arr)
+      })
+      setBanks(arr)
     } catch (error) {
       console.error('Error fetching banks:', error)
       toaster.create({
@@ -55,17 +58,18 @@ export default function Transaction() {
 
   const fetchCategories = async () => {
     try {
-        let  arr = [];
-      const response = await axios.get('http://localhost:8080/api/categories')
-      response.data.data.map(category => {
+      let arr = []
+      // Fetch all categories with a large page size
+      const response = await axios.get('http://localhost:8080/api/categories?page=1&page_size=100')
+      // Handle paginated response: response.data.data.data
+      const categoriesData = response.data.data.data || []
+      categoriesData.map(category => {
         arr.push({
-            label: category.CategoryName,
-            value: category.ID
+          label: category.CategoryName,
+          value: category.ID
         })
       })
-
       setCategories(arr)
-
     } catch (error) {
       console.error('Error fetching categories:', error)
       toaster.create({

@@ -158,7 +158,7 @@ export default function Financials() {
               onChange={handleDateChange}
             />
           </Box>
-          <Button colorScheme="blue" onClick={applyDateFilter}>
+          <Button onClick={applyDateFilter} bg={{ base: 'blue.500', _dark: 'blue.600' }} color="white" _hover={{ bg: { base: 'blue.600', _dark: 'blue.700' } }}>
             Apply Filter
           </Button>
         </Flex>

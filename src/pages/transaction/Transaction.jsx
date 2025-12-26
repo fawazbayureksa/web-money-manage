@@ -36,10 +36,12 @@ export default function Transaction() {
   const fetchBanks = async () => {
     try {
       let arr = []
+      const token = localStorage.getItem('token');
       // Fetch all banks with a large page size
-      const response = await axios.get('http://localhost:8080/api/banks?page=1&page_size=100')
+      const url = import.meta.env.VITE_API_URL + 'banks?page=1&page_size=100';
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }))
       // Handle paginated response: response.data.data.data
-      const banksData = response.data.data.data || []
+      const banksData = response.data.data?.data || response.data.data || []
       banksData.map(bank => {
         arr.push({
           label: bank.bank_name,
@@ -59,10 +61,12 @@ export default function Transaction() {
   const fetchCategories = async () => {
     try {
       let arr = []
-      // Fetch all categories with a large page size
-      const response = await axios.get('http://localhost:8080/api/categories?page=1&page_size=100')
-      // Handle paginated response: response.data.data.data
-      const categoriesData = response.data.data.data || []
+      const token = localStorage.getItem('token');
+      // Fetch all categories
+      const url = import.meta.env.VITE_API_URL + 'categories';
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }))
+      // Handle response: response.data.data is direct array
+      const categoriesData = response.data.data || []
       categoriesData.map(category => {
         arr.push({
           label: category.CategoryName,
@@ -188,7 +192,7 @@ export default function Transaction() {
                     onChange={handleInputChange}
                 />
             </Field.Root>
-        <Button colorPalette="teal" onClick={handleSubmit} variant="outline" type="submit" colorScheme="blue">
+        <Button onClick={handleSubmit} type="submit" bg={{ base: 'blue.500', _dark: 'blue.600' }} color="white" _hover={{ bg: { base: 'blue.600', _dark: 'blue.700' } }}>
             Record Transaction
         </Button>
     </Box>

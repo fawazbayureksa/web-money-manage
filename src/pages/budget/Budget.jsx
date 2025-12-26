@@ -6,11 +6,6 @@ import {
   Table,
   Text,
   Button,
-  Dialog,
-  Portal,
-  CloseButton,
-  Field,
-  Input,
   Flex,
   Stack,
   Badge,
@@ -20,26 +15,14 @@ import {
 import axios from 'axios';
 import Config from '../../components/axios/Config';
 import { toaster } from "./../../components/ui/toaster";
-import { SelectComponent } from '../../components/form/SelectComponent';
+import { useNavigate } from 'react-router-dom';
 
 export default function Budget() {
+  const navigate = useNavigate();
   const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [modal, setModal] = useState(false);
   const [error, setError] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [currentBudgetId, setCurrentBudgetId] = useState(null);
-
-  // Form states
-  const [formData, setFormData] = useState({
-    category_id: '',
-    amount: '',
-    period: 'monthly',
-    start_date: '',
-    alert_at: 80,
-    description: ''
-  });
 
   // Pagination, Search, Filter, Sort states
   const [page, setPage] = useState(1);
@@ -95,69 +78,26 @@ export default function Budget() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/categories?page=1&page_size=100');
-      const categoriesData = response.data.data.data || [];
+      const token = localStorage.getItem('token');
+      const url = import.meta.env.VITE_API_URL + 'categories';
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      // Handle response: response.data.data is direct array
+      const categoriesData = response.data.data || [];
       setCategories(categoriesData.map(cat => ({
         label: cat.CategoryName,
-        value: cat.ID
+        value: String(cat.ID) // Convert to string for SelectComponent
       })));
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSelectChange = (field, val) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: parseInt(val[0])
-    }));
-  };
-
-  const handleSubmit = async () => {
-    const token = localStorage.getItem('token');
-    const url = import.meta.env.VITE_API_URL + (editMode ? `budgets/${currentBudgetId}` : 'budgets');
-
-    try {
-      const method = editMode ? 'put' : 'post';
-      await axios[method](url, formData, Config({ Authorization: `Bearer ${token}` }));
-
-      toaster.create({
-        description: `Budget ${editMode ? 'updated' : 'created'} successfully`,
-        type: "success",
-      });
-
-      setModal(false);
-      resetForm();
-      fetchBudgets();
-    } catch (error) {
-      console.error(error);
-      toaster.create({
-        description: `Failed to ${editMode ? 'update' : 'create'} budget`,
-        type: "error",
-      });
-    }
-  };
-
   const handleEdit = (budget) => {
-    setEditMode(true);
-    setCurrentBudgetId(budget.id);
-    setFormData({
-      category_id: budget.category_id,
-      amount: budget.amount,
-      period: budget.period,
-      start_date: budget.start_date ? budget.start_date.split('T')[0] : '',
-      alert_at: budget.alert_at,
-      description: budget.description
-    });
-    setModal(true);
+    navigate(`/budget/edit/${budget.id}`);
+  };
+
+  const handleAddNew = () => {
+    navigate('/budget/new');
   };
 
   const handleDelete = async (id) => {
@@ -180,24 +120,6 @@ export default function Budget() {
         type: "error",
       });
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      category_id: '',
-      amount: '',
-      period: 'monthly',
-      start_date: '',
-      alert_at: 80,
-      description: ''
-    });
-    setEditMode(false);
-    setCurrentBudgetId(null);
-  };
-
-  const handleAddNew = () => {
-    resetForm();
-    setModal(true);
   };
 
   const handleSort = (field) => {
@@ -255,7 +177,7 @@ export default function Budget() {
               Total: {totalItems} budgets
             </Text>
           </Box>
-          <Button colorScheme="blue" size="md" onClick={handleAddNew}>
+          <Button size="md" onClick={handleAddNew} bg={{ base: 'blue.500', _dark: 'blue.600' }} color="white" _hover={{ bg: { base: 'blue.600', _dark: 'blue.700' } }}>
             + Create Budget
           </Button>
         </Flex>
@@ -538,101 +460,6 @@ export default function Budget() {
           </Card.Root>
         )}
       </Box>
-
-      {/* Create/Edit Modal */}
-      <Dialog.Root lazyMount open={modal} onOpenChange={(e) => setModal(e.open)}>
-        <Portal>
-          <Dialog.Backdrop />
-          <Dialog.Positioner>
-            <Dialog.Content maxW="500px">
-              <Dialog.Header>
-                <Dialog.Title>{editMode ? 'Edit Budget' : 'Create Budget'}</Dialog.Title>
-              </Dialog.Header>
-              <Dialog.Body>
-                <Stack gap={4}>
-                  <Field.Root required>
-                    <SelectComponent
-                      options={categories}
-                      label='Category'
-                      onChange={(val) => handleSelectChange('category_id', val)}
-                      placeholder='Select Category'
-                      value={formData.category_id ? [formData.category_id] : []}
-                    />
-                  </Field.Root>
-
-                  <Field.Root required>
-                    <Field.Label>Amount <Field.RequiredIndicator /></Field.Label>
-                    <Input
-                      type="number"
-                      name="amount"
-                      placeholder="Enter budget amount"
-                      value={formData.amount}
-                      onChange={handleInputChange}
-                    />
-                  </Field.Root>
-
-                  <Field.Root required>
-                    <SelectComponent
-                      options={periodOptions}
-                      label='Period'
-                      onChange={(val) => setFormData(prev => ({ ...prev, period: val[0] }))}
-                      placeholder='Select Period'
-                      value={formData.period ? [formData.period] : []}
-                    />
-                  </Field.Root>
-
-                  <Field.Root required>
-                    <Field.Label>Start Date <Field.RequiredIndicator /></Field.Label>
-                    <Input
-                      type="date"
-                      name="start_date"
-                      value={formData.start_date}
-                      onChange={handleInputChange}
-                    />
-                  </Field.Root>
-
-                  <Field.Root required>
-                    <Field.Label>Alert At (%) <Field.RequiredIndicator /></Field.Label>
-                    <Input
-                      type="number"
-                      name="alert_at"
-                      placeholder="Enter alert threshold (e.g., 80)"
-                      value={formData.alert_at}
-                      onChange={handleInputChange}
-                      min="1"
-                      max="100"
-                    />
-                    <Text fontSize="xs" color="gray.500" mt={1}>
-                      You'll be alerted when spending reaches this percentage
-                    </Text>
-                  </Field.Root>
-
-                  <Field.Root>
-                    <Field.Label>Description</Field.Label>
-                    <Input
-                      name="description"
-                      placeholder="Enter description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                    />
-                  </Field.Root>
-                </Stack>
-              </Dialog.Body>
-              <Dialog.Footer>
-                <Dialog.ActionTrigger asChild>
-                  <Button variant="outline" onClick={() => setModal(false)}>Cancel</Button>
-                </Dialog.ActionTrigger>
-                <Button colorScheme="blue" onClick={handleSubmit}>
-                  {editMode ? 'Update' : 'Create'}
-                </Button>
-              </Dialog.Footer>
-              <Dialog.CloseTrigger asChild>
-                <CloseButton size="sm" />
-              </Dialog.CloseTrigger>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
     </>
   );
 }

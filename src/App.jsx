@@ -13,6 +13,7 @@ import { Toaster } from './components/ui/toaster'
 import Logout from './components/Logout'
 import Transaction from './pages/transaction/Transaction'
 import Budget from './pages/budget/Budget'
+import BudgetForm from './pages/budget/BudgetForm'
 import BudgetAlerts from './pages/budget/BudgetAlerts'
 import Financials from './pages/financials/Financials'
 
@@ -65,6 +66,8 @@ function App() {
           <Route path="categories" element={<Category />} />
           <Route path="transaction" element={<Transaction />} />
           <Route path="budget" element={<Budget />} />
+          <Route path="budget/new" element={<BudgetForm />} />
+          <Route path="budget/edit/:id" element={<BudgetForm />} />
           <Route path="budget-alerts" element={<BudgetAlerts />} />
           <Route path="financials" element={<Financials />} />
           <Route path="logout" element={<Logout onLogout={handleLogout} />} />

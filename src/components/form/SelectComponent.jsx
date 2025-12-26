@@ -13,13 +13,12 @@ export const SelectComponent = ({
 
   return (
     <Select.Root 
-    collection={collection} 
-    size={size} 
-    width={width}
+      collection={collection} 
+      size={size} 
+      width={width}
       value={value}
       onValueChange={({ value }) => onChange(value)}
     >
-      <Select.HiddenSelect />
       <Select.Label>{label}</Select.Label>
       <Select.Control>
         <Select.Trigger>
@@ -32,15 +31,15 @@ export const SelectComponent = ({
       <Portal>
         <Select.Positioner>
           <Select.Content>
-            {options.map((option) => (
+            {collection.items.map((option) => (
               <Select.Item item={option} key={option.value}>
                 {option.label}
-                <Select.ItemIndicator />
               </Select.Item>
             ))}
           </Select.Content>
         </Select.Positioner>
       </Portal>
+      <Select.HiddenSelect />
     </Select.Root>
   );
 };

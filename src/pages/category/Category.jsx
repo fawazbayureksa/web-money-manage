@@ -39,7 +39,8 @@ export default function Category() {
       let axiosInstance = axios.get(url, Config({ Authorization: `Bearer ${token}` }))
 
       await axiosInstance.then(response => {
-          setCategories(response.data.data);
+          // Handle response: response.data.data is direct array
+          setCategories(response.data.data || []);
         }).catch(error => {
           console.error(error);
           setError(error);
@@ -201,7 +202,7 @@ export default function Category() {
                   <Dialog.ActionTrigger asChild>
                     <Button variant="outline">Cancel</Button>
                   </Dialog.ActionTrigger>
-                  <Button variant="outline" colorScheme="blue" type="submit" onClick={handleAddCategory}>Save</Button>
+                <Button type="submit" onClick={handleAddCategory} bg={{ base: 'blue.500', _dark: 'blue.600' }} color="white" _hover={{ bg: { base: 'blue.600', _dark: 'blue.700' } }}>Save</Button>
                 </Dialog.Footer>
                 <Dialog.CloseTrigger asChild>
                   <CloseButton size="sm" />

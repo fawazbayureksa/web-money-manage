@@ -181,9 +181,11 @@ export default function Banks() {
             </Text>
           </Box>
           <Button 
-            colorScheme="blue" 
             size="md"
             onClick={() => setModal(true)}
+            bg={{ base: 'blue.500', _dark: 'blue.600' }}
+            color="white"
+            _hover={{ bg: { base: 'blue.600', _dark: 'blue.700' } }}
           >
             + Add New Bank
           </Button>
@@ -201,7 +203,12 @@ export default function Banks() {
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 flex={1}
               />
-              <Button colorScheme="blue" onClick={handleSearch}>
+              <Button 
+                onClick={handleSearch}
+                bg={{ base: 'blue.500', _dark: 'blue.600' }}
+                color="white"
+                _hover={{ bg: { base: 'blue.600', _dark: 'blue.700' } }}
+              >
                 Search
               </Button>
               <Button variant="outline" onClick={handleClearFilters}>
@@ -395,8 +402,11 @@ export default function Banks() {
                         key={pageNum}
                         size="sm"
                         onClick={() => setPage(pageNum)}
-                        colorScheme={page === pageNum ? 'blue' : 'gray'}
+                        colorScheme={page === pageNum ? undefined : 'gray'}
                         variant={page === pageNum ? 'solid' : 'outline'}
+                        bg={page === pageNum ? { base: 'blue.500', _dark: 'blue.600' } : undefined}
+                        color={page === pageNum ? 'white' : undefined}
+                        _hover={page === pageNum ? { bg: { base: 'blue.600', _dark: 'blue.700' } } : undefined}
                       >
                         {pageNum}
                       </Button>

@@ -136,9 +136,11 @@ export default function BudgetAlerts() {
         <Flex gap={2}>
           <Button
             variant={showUnreadOnly ? 'solid' : 'outline'}
-            colorScheme="blue"
             size="sm"
             onClick={() => setShowUnreadOnly(!showUnreadOnly)}
+            bg={showUnreadOnly ? { base: 'blue.500', _dark: 'blue.600' } : undefined}
+            color={showUnreadOnly ? 'white' : undefined}
+            _hover={showUnreadOnly ? { bg: { base: 'blue.600', _dark: 'blue.700' } } : undefined}
           >
             {showUnreadOnly ? 'Show All' : 'Unread Only'}
           </Button>

@@ -36,13 +36,16 @@ export default function Transaction() {
   const fetchBanks = async () => {
     try {
     let arr = []
-      const response = await axios.get('http://localhost:8080/api/banks')
-        response.data.data.map(bank => {
+    let url = import.meta.env.VITE_API_URL + 'banks';
+      const response = await axios.get(url)
+      console.log(response.data.data.data)
+        response?.data?.data?.data?.map(bank => {
             arr.push({
                 label: bank.bank_name,
                 value: bank.id
             })
         })
+        console.log(arr)
         setBanks(arr)
     } catch (error) {
       console.error('Error fetching banks:', error)
@@ -56,8 +59,10 @@ export default function Transaction() {
   const fetchCategories = async () => {
     try {
         let  arr = [];
-      const response = await axios.get('http://localhost:8080/api/categories')
-      response.data.data.map(category => {
+    let url = import.meta.env.VITE_API_URL + 'categories';
+      const response = await axios.get(url)
+      console.log(response.data.data)
+      response?.data?.data.map(category => {
         arr.push({
             label: category.CategoryName,
             value: category.ID

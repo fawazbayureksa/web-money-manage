@@ -47,6 +47,7 @@ export default function Banks() {
 
     const fetchBanks = async () => {
       setLoading(true);
+      
       try {
         // Build query parameters
         const params = new URLSearchParams({
@@ -61,8 +62,8 @@ export default function Banks() {
           params.append('sort_by', sortBy);
           params.append('sort_dir', sortDir);
         }
-
-        const response = await fetch(`http://localhost:8080/api/banks?${params.toString()}`);
+        let url = import.meta.env.VITE_API_URL + 'banks';
+        const response = await fetch(`${url}?${params.toString()}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -89,7 +90,7 @@ export default function Banks() {
           color: color,
         }
 
-        const response = await fetch('http://localhost:8080/api/banks', {
+        const response = await fetch(import.meta.env.VITE_API_URL + 'banks', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -121,7 +122,8 @@ export default function Banks() {
 
     const deleteBank = async (id) => {
       try {
-        const response = await fetch(`http://localhost:8080/api/banks/${id}`, {
+        let url = import.meta.env.VITE_API_URL + 'banks';
+        const response = await fetch(`${url}/${id}`, {
           method: 'DELETE',
         });
         if (!response.ok) {

@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "./../../components/ui/toaster";
 import axios from 'axios';
-import { isLogin } from '../../components/isLogin';
+// import { isLogin } from '../../components/isLogin';
 import Config from '../../components/axios/Config';
 
 export default function Category() {

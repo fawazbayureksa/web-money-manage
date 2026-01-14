@@ -101,7 +101,7 @@ export default function Register() {
         </Field.Root>
           <HStack>
       <Button colorPalette="teal" variant="solid" onClick={(e) => handleSubmit(e)}>
-        <RiArrowRightCircleLine /> Registers
+        <RiArrowRightCircleLine /> Register
       </Button>
     </HStack>
         </Box>

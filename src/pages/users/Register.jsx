@@ -69,7 +69,7 @@ export default function Register() {
       >
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
         <Stack align={'center'}>
-          <Heading fontSize={'2xl'}>Create a new account</Heading>
+          <Heading fontSize={'2xl'}>Register</Heading>
         </Stack>
         <Box
           rounded={'lg'}

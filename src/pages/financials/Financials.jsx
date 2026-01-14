@@ -16,6 +16,8 @@ import {
 import axios from 'axios';
 import Config from '../../components/axios/Config';
 import { toaster } from "./../../components/ui/toaster";
+import { useLocalValueVisibility } from '../../hooks/useValueVisibility';
+import { VisibilityToggle } from '../../components/ui/VisibilityToggle';
 
 export default function Financials() {
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,9 @@ export default function Financials() {
     start_date: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
     end_date: new Date().toISOString().split('T')[0]
   });
+  
+  // Value visibility hook
+  const { isHidden, toggleVisibility, formatValue } = useLocalValueVisibility();
 
   useEffect(() => {
     fetchAllAnalytics();
@@ -114,6 +119,16 @@ export default function Financials() {
     return `Rp ${(amount || 0).toLocaleString('id-ID')}`;
   };
 
+  // Format currency with visibility check
+  const displayCurrency = (amount) => {
+    return formatValue(amount, formatCurrency);
+  };
+
+  // Format percentage with visibility check
+  const displayPercentage = (value, decimals = 1) => {
+    return formatValue(value, (v) => `${(v || 0).toFixed(decimals)}%`);
+  };
+
   const formatMonth = (monthStr) => {
     const date = new Date(monthStr + '-01');
     return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'short' });
@@ -133,29 +148,36 @@ export default function Financials() {
 
   return (
     <Box maxW="7xl" mx="auto" px={4} py={8}>
-      <Heading as="h3" size="lg" mb={6}>
-        Financial Analytics
-      </Heading>
+      <Flex justify="space-between" align="center" mb={6}>
+        <Heading as="h3" size="lg">
+          Financial Analytics
+        </Heading>
+        <VisibilityToggle isHidden={isHidden} onToggle={toggleVisibility} />
+      </Flex>
 
       {/* Date Range Filter */}
-      <Card.Root mb={6} p={4}>
+      <Card.Root mb={6} p={4} bg={{ base: 'white', _dark: 'gray.800' }}>
         <Flex gap={3} align="end" wrap="wrap">
           <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={2}>Start Date</Text>
+            <Text fontSize="sm" fontWeight="medium" mb={2} color={{ base: 'gray.700', _dark: 'gray.200' }}>Start Date</Text>
             <Input
               type="date"
               name="start_date"
               value={dateRange.start_date}
               onChange={handleDateChange}
+              bg={{ base: 'white', _dark: 'gray.700' }}
+              borderColor={{ base: 'gray.300', _dark: 'gray.600' }}
             />
           </Box>
           <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={2}>End Date</Text>
+            <Text fontSize="sm" fontWeight="medium" mb={2} color={{ base: 'gray.700', _dark: 'gray.200' }}>End Date</Text>
             <Input
               type="date"
               name="end_date"
               value={dateRange.end_date}
               onChange={handleDateChange}
+              bg={{ base: 'white', _dark: 'gray.700' }}
+              borderColor={{ base: 'gray.300', _dark: 'gray.600' }}
             />
           </Box>
           <Button onClick={applyDateFilter} bg={{ base: 'blue.500', _dark: 'blue.600' }} color="white" _hover={{ bg: { base: 'blue.600', _dark: 'blue.700' } }}>
@@ -166,49 +188,49 @@ export default function Financials() {
 
       {/* Summary Cards */}
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={4} mb={6}>
-        <Card.Root bg="green.50" borderLeft="4px solid" borderColor="green.500">
+        <Card.Root bg={{ base: 'green.50', _dark: 'green.900' }} borderLeft="4px solid" borderColor="green.500">
           <Card.Body>
-            <Text fontSize="sm" color="gray.600" mb={1}>Total Income</Text>
-            <Text fontSize="2xl" fontWeight="bold" color="green.600">
-              {formatCurrency(currentMonth.total_income)}
+            <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.300' }} mb={1}>Total Income</Text>
+            <Text fontSize="2xl" fontWeight="bold" color={{ base: 'green.600', _dark: 'green.300' }}>
+              {displayCurrency(currentMonth.total_income)}
             </Text>
-            <Text fontSize="xs" color="gray.500" mt={1}>
+            <Text fontSize="xs" color={{ base: 'gray.500', _dark: 'gray.400' }} mt={1}>
               {currentMonth.income_count} transactions
             </Text>
           </Card.Body>
         </Card.Root>
 
-        <Card.Root bg="red.50" borderLeft="4px solid" borderColor="red.500">
+        <Card.Root bg={{ base: 'red.50', _dark: 'red.900' }} borderLeft="4px solid" borderColor="red.500">
           <Card.Body>
-            <Text fontSize="sm" color="gray.600" mb={1}>Total Expense</Text>
-            <Text fontSize="2xl" fontWeight="bold" color="red.600">
-              {formatCurrency(currentMonth.total_expense)}
+            <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.300' }} mb={1}>Total Expense</Text>
+            <Text fontSize="2xl" fontWeight="bold" color={{ base: 'red.600', _dark: 'red.300' }}>
+              {displayCurrency(currentMonth.total_expense)}
             </Text>
-            <Text fontSize="xs" color="gray.500" mt={1}>
+            <Text fontSize="xs" color={{ base: 'gray.500', _dark: 'gray.400' }} mt={1}>
               {currentMonth.expense_count} transactions
             </Text>
           </Card.Body>
         </Card.Root>
 
-        <Card.Root bg="blue.50" borderLeft="4px solid" borderColor="blue.500">
+        <Card.Root bg={{ base: 'blue.50', _dark: 'blue.900' }} borderLeft="4px solid" borderColor="blue.500">
           <Card.Body>
-            <Text fontSize="sm" color="gray.600" mb={1}>Net Amount</Text>
-            <Text fontSize="2xl" fontWeight="bold" color="blue.600">
-              {formatCurrency(currentMonth.net_amount)}
+            <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.300' }} mb={1}>Net Amount</Text>
+            <Text fontSize="2xl" fontWeight="bold" color={{ base: 'blue.600', _dark: 'blue.300' }}>
+              {displayCurrency(currentMonth.net_amount)}
             </Text>
-            <Text fontSize="xs" color="gray.500" mt={1}>
+            <Text fontSize="xs" color={{ base: 'gray.500', _dark: 'gray.400' }} mt={1}>
               This month
             </Text>
           </Card.Body>
         </Card.Root>
 
-        <Card.Root bg="purple.50" borderLeft="4px solid" borderColor="purple.500">
+        <Card.Root bg={{ base: 'purple.50', _dark: 'purple.900' }} borderLeft="4px solid" borderColor="purple.500">
           <Card.Body>
-            <Text fontSize="sm" color="gray.600" mb={1}>Savings Rate</Text>
-            <Text fontSize="2xl" fontWeight="bold" color="purple.600">
-              {(currentMonth.savings_rate || 0).toFixed(1)}%
+            <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.300' }} mb={1}>Savings Rate</Text>
+            <Text fontSize="2xl" fontWeight="bold" color={{ base: 'purple.600', _dark: 'purple.300' }}>
+              {displayPercentage(currentMonth.savings_rate)}
             </Text>
-            <Text fontSize="xs" color="gray.500" mt={1}>
+            <Text fontSize="xs" color={{ base: 'gray.500', _dark: 'gray.400' }} mt={1}>
               {currentMonth.savings_rate > lastMonth.savings_rate ? '↑' : '↓'} vs last month
             </Text>
           </Card.Body>
@@ -217,10 +239,10 @@ export default function Financials() {
 
       <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={6} mb={6}>
         {/* Spending by Category */}
-        <Card.Root>
+        <Card.Root bg={{ base: 'white', _dark: 'gray.800' }}>
           <Card.Header>
             <Heading size="md">Spending by Category</Heading>
-            <Text fontSize="sm" color="gray.500">
+            <Text fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
               {dateRange.start_date} to {dateRange.end_date}
             </Text>
           </Card.Header>
@@ -234,9 +256,9 @@ export default function Financials() {
                         <Text fontWeight="medium">{cat.category_name}</Text>
                         <Badge size="sm">{cat.count}</Badge>
                       </Flex>
-                      <Text fontWeight="bold">{formatCurrency(cat.total_amount)}</Text>
+                      <Text fontWeight="bold">{displayCurrency(cat.total_amount)}</Text>
                     </Flex>
-                    <Box w="100%" bg="gray.200" h="8px" borderRadius="full" overflow="hidden">
+                    <Box w="100%" bg={{ base: 'gray.200', _dark: 'gray.600' }} h="8px" borderRadius="full" overflow="hidden">
                       <Box
                         bg="blue.500"
                         h="100%"
@@ -244,23 +266,23 @@ export default function Financials() {
                         transition="width 0.3s"
                       />
                     </Box>
-                    <Text fontSize="xs" color="gray.500" mt={1}>
-                      {cat.percentage?.toFixed(1)}% of total spending
+                    <Text fontSize="xs" color={{ base: 'gray.500', _dark: 'gray.400' }} mt={1}>
+                      {displayPercentage(cat.percentage)} of total spending
                     </Text>
                   </Box>
                 ))}
               </Stack>
             ) : (
-              <Text color="gray.500" textAlign="center">No data available</Text>
+              <Text color={{ base: 'gray.500', _dark: 'gray.400' }} textAlign="center">No data available</Text>
             )}
           </Card.Body>
         </Card.Root>
 
         {/* Spending by Bank */}
-        <Card.Root>
+        <Card.Root bg={{ base: 'white', _dark: 'gray.800' }}>
           <Card.Header>
             <Heading size="md">Spending by Bank</Heading>
-            <Text fontSize="sm" color="gray.500">
+            <Text fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
               {dateRange.start_date} to {dateRange.end_date}
             </Text>
           </Card.Header>
@@ -274,9 +296,9 @@ export default function Financials() {
                         <Text fontWeight="medium">{bank.bank_name}</Text>
                         <Badge size="sm">{bank.count}</Badge>
                       </Flex>
-                      <Text fontWeight="bold">{formatCurrency(bank.total_amount)}</Text>
+                      <Text fontWeight="bold">{displayCurrency(bank.total_amount)}</Text>
                     </Flex>
-                    <Box w="100%" bg="gray.200" h="8px" borderRadius="full" overflow="hidden">
+                    <Box w="100%" bg={{ base: 'gray.200', _dark: 'gray.600' }} h="8px" borderRadius="full" overflow="hidden">
                       <Box
                         bg="green.500"
                         h="100%"
@@ -284,14 +306,14 @@ export default function Financials() {
                         transition="width 0.3s"
                       />
                     </Box>
-                    <Text fontSize="xs" color="gray.500" mt={1}>
-                      {bank.percentage?.toFixed(1)}% of total spending
+                    <Text fontSize="xs" color={{ base: 'gray.500', _dark: 'gray.400' }} mt={1}>
+                      {displayPercentage(bank.percentage)} of total spending
                     </Text>
                   </Box>
                 ))}
               </Stack>
             ) : (
-              <Text color="gray.500" textAlign="center">No data available</Text>
+              <Text color={{ base: 'gray.500', _dark: 'gray.400' }} textAlign="center">No data available</Text>
             )}
           </Card.Body>
         </Card.Root>
@@ -299,27 +321,27 @@ export default function Financials() {
 
       {/* Budget Summary */}
       {budgetSummary.total_budgets > 0 && (
-        <Card.Root mb={6}>
+        <Card.Root mb={6} bg={{ base: 'white', _dark: 'gray.800' }}>
           <Card.Header>
             <Heading size="md">Budget Overview</Heading>
           </Card.Header>
           <Card.Body>
             <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
-              <Box textAlign="center" p={4} bg="gray.50" borderRadius="md">
-                <Text fontSize="sm" color="gray.600">Active Budgets</Text>
-                <Text fontSize="3xl" fontWeight="bold" color="blue.600">
+              <Box textAlign="center" p={4} bg={{ base: 'gray.50', _dark: 'gray.700' }} borderRadius="md">
+                <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.300' }}>Active Budgets</Text>
+                <Text fontSize="3xl" fontWeight="bold" color={{ base: 'blue.600', _dark: 'blue.300' }}>
                   {budgetSummary.active_budgets}
                 </Text>
               </Box>
-              <Box textAlign="center" p={4} bg="orange.50" borderRadius="md">
-                <Text fontSize="sm" color="gray.600">Warning</Text>
-                <Text fontSize="3xl" fontWeight="bold" color="orange.600">
+              <Box textAlign="center" p={4} bg={{ base: 'orange.50', _dark: 'orange.900' }} borderRadius="md">
+                <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.300' }}>Warning</Text>
+                <Text fontSize="3xl" fontWeight="bold" color={{ base: 'orange.600', _dark: 'orange.300' }}>
                   {budgetSummary.warning_budgets}
                 </Text>
               </Box>
-              <Box textAlign="center" p={4} bg="red.50" borderRadius="md">
-                <Text fontSize="sm" color="gray.600">Exceeded</Text>
-                <Text fontSize="3xl" fontWeight="bold" color="red.600">
+              <Box textAlign="center" p={4} bg={{ base: 'red.50', _dark: 'red.900' }} borderRadius="md">
+                <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.300' }}>Exceeded</Text>
+                <Text fontSize="3xl" fontWeight="bold" color={{ base: 'red.600', _dark: 'red.300' }}>
                   {budgetSummary.exceeded_budgets}
                 </Text>
               </Box>
@@ -327,9 +349,9 @@ export default function Financials() {
             <Box mt={4}>
               <Flex justify="space-between" mb={2}>
                 <Text fontWeight="medium">Overall Budget Utilization</Text>
-                <Text fontWeight="bold">{budgetSummary.average_utilization?.toFixed(1)}%</Text>
+                <Text fontWeight="bold">{displayPercentage(budgetSummary.average_utilization)}</Text>
               </Flex>
-              <Box w="100%" bg="gray.200" h="12px" borderRadius="full" overflow="hidden">
+              <Box w="100%" bg={{ base: 'gray.200', _dark: 'gray.600' }} h="12px" borderRadius="full" overflow="hidden">
                 <Box
                   bg={budgetSummary.average_utilization > 90 ? 'red.500' : budgetSummary.average_utilization > 80 ? 'orange.500' : 'green.500'}
                   h="100%"
@@ -337,9 +359,9 @@ export default function Financials() {
                   transition="width 0.3s"
                 />
               </Box>
-              <Flex justify="space-between" mt={2} fontSize="sm" color="gray.600">
-                <Text>Spent: {formatCurrency(budgetSummary.total_spent)}</Text>
-                <Text>Budgeted: {formatCurrency(budgetSummary.total_budgeted)}</Text>
+              <Flex justify="space-between" mt={2} fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>
+                <Text>Spent: {displayCurrency(budgetSummary.total_spent)}</Text>
+                <Text>Budgeted: {displayCurrency(budgetSummary.total_budgeted)}</Text>
               </Flex>
             </Box>
           </Card.Body>
@@ -347,10 +369,10 @@ export default function Financials() {
       )}
 
       {/* Monthly Comparison */}
-      <Card.Root>
+      <Card.Root bg={{ base: 'white', _dark: 'gray.800' }}>
         <Card.Header>
           <Heading size="md">6-Month Trend</Heading>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
             Income vs Expense comparison
           </Text>
         </Card.Header>
@@ -358,33 +380,33 @@ export default function Financials() {
           {monthlyComparison.length > 0 ? (
             <Stack gap={4}>
               {monthlyComparison.map((month, idx) => (
-                <Box key={idx} p={3} bg="gray.50" borderRadius="md">
+                <Box key={idx} p={3} bg={{ base: 'gray.50', _dark: 'gray.700' }} borderRadius="md">
                   <Flex justify="space-between" mb={3}>
                     <Text fontWeight="bold" fontSize="lg">{formatMonth(month.month)}</Text>
                     <Badge colorScheme={month.net >= 0 ? 'green' : 'red'}>
-                      {formatCurrency(month.net)}
+                      {displayCurrency(month.net)}
                     </Badge>
                   </Flex>
                   <Grid templateColumns="1fr 1fr" gap={3}>
                     <Box>
-                      <Text fontSize="sm" color="gray.600">Income</Text>
-                      <Text fontWeight="bold" color="green.600">
-                        {formatCurrency(month.income)}
+                      <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>Income</Text>
+                      <Text fontWeight="bold" color={{ base: 'green.600', _dark: 'green.300' }}>
+                        {displayCurrency(month.income)}
                       </Text>
                       {month.income_change !== 0 && (
                         <Text fontSize="xs" color={month.income_change > 0 ? 'green.500' : 'red.500'}>
-                          {month.income_change > 0 ? '↑' : '↓'} {Math.abs(month.income_change).toFixed(1)}%
+                          {month.income_change > 0 ? '↑' : '↓'} {formatValue(Math.abs(month.income_change), (v) => `${v.toFixed(1)}%`)}
                         </Text>
                       )}
                     </Box>
                     <Box>
-                      <Text fontSize="sm" color="gray.600">Expense</Text>
-                      <Text fontWeight="bold" color="red.600">
-                        {formatCurrency(month.expense)}
+                      <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>Expense</Text>
+                      <Text fontWeight="bold" color={{ base: 'red.600', _dark: 'red.300' }}>
+                        {displayCurrency(month.expense)}
                       </Text>
                       {month.expense_change !== 0 && (
                         <Text fontSize="xs" color={month.expense_change > 0 ? 'red.500' : 'green.500'}>
-                          {month.expense_change > 0 ? '↑' : '↓'} {Math.abs(month.expense_change).toFixed(1)}%
+                          {month.expense_change > 0 ? '↑' : '↓'} {formatValue(Math.abs(month.expense_change), (v) => `${v.toFixed(1)}%`)}
                         </Text>
                       )}
                     </Box>
@@ -393,21 +415,21 @@ export default function Financials() {
               ))}
             </Stack>
           ) : (
-            <Text color="gray.500" textAlign="center">No data available</Text>
+            <Text color={{ base: 'gray.500', _dark: 'gray.400' }} textAlign="center">No data available</Text>
           )}
         </Card.Body>
       </Card.Root>
 
       {/* Top Categories */}
       {dashboardData?.top_categories && dashboardData.top_categories.length > 0 && (
-        <Card.Root mt={6}>
+        <Card.Root mt={6} bg={{ base: 'white', _dark: 'gray.800' }}>
           <Card.Header>
             <Heading size="md">Top Spending Categories (This Month)</Heading>
           </Card.Header>
           <Card.Body>
             <Stack gap={3}>
               {dashboardData.top_categories.slice(0, 5).map((cat, idx) => (
-                <Flex key={idx} justify="space-between" align="center" p={3} bg="gray.50" borderRadius="md">
+                <Flex key={idx} justify="space-between" align="center" p={3} bg={{ base: 'gray.50', _dark: 'gray.700' }} borderRadius="md">
                   <Flex align="center" gap={3}>
                     <Box
                       w="40px"
@@ -424,12 +446,12 @@ export default function Financials() {
                     </Box>
                     <Box>
                       <Text fontWeight="medium">{cat.category_name}</Text>
-                      <Text fontSize="sm" color="gray.600">{cat.count} transactions</Text>
+                      <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>{cat.count} transactions</Text>
                     </Box>
                   </Flex>
                   <Box textAlign="right">
-                    <Text fontWeight="bold">{formatCurrency(cat.total_amount)}</Text>
-                    <Text fontSize="sm" color="gray.600">{cat.percentage?.toFixed(1)}%</Text>
+                    <Text fontWeight="bold">{displayCurrency(cat.total_amount)}</Text>
+                    <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>{displayPercentage(cat.percentage)}</Text>
                   </Box>
                 </Flex>
               ))}

@@ -129,7 +129,7 @@ export default function BudgetAlerts() {
           <Heading as="h3" size="lg" mb={2}>
             Budget Alerts
           </Heading>
-          <Text color="gray.500" fontSize="sm">
+          <Text color={{ base: 'gray.500', _dark: 'gray.400' }} fontSize="sm">
             {unreadCount > 0 ? `${unreadCount} unread alerts` : 'All caught up!'}
           </Text>
         </Box>
@@ -138,7 +138,8 @@ export default function BudgetAlerts() {
             variant={showUnreadOnly ? 'solid' : 'outline'}
             size="sm"
             onClick={() => setShowUnreadOnly(!showUnreadOnly)}
-            bg={showUnreadOnly ? { base: 'blue.500', _dark: 'blue.600' } : undefined}
+            bg={{ base: 'gray.50', _dark: 'gray.700' }}
+            // bg={showUnreadOnly ? { base: 'blue.500', _dark: 'blue.600' } : undefined}
             color={showUnreadOnly ? 'white' : undefined}
             _hover={showUnreadOnly ? { bg: { base: 'blue.600', _dark: 'blue.700' } } : undefined}
           >
@@ -175,9 +176,9 @@ export default function BudgetAlerts() {
             <Card.Root
               key={alert.id}
               p={4}
-              bg={alert.is_read ? 'white' : 'blue.50'}
+              bg={alert.is_read ? { base: 'white', _dark: 'gray.800' } : { base: 'blue.50', _dark: 'blue.900' }}
               borderLeft="4px solid"
-              borderColor={alert.is_read ? 'gray.200' : getSeverityColor(alert.percentage)}
+              borderColor={alert.is_read ? { base: 'gray.200', _dark: 'gray.600' } : getSeverityColor(alert.percentage)}
               _hover={{ shadow: 'md' }}
               transition="all 0.2s"
             >
@@ -196,7 +197,7 @@ export default function BudgetAlerts() {
                     {alert.message}
                   </Text>
                   
-                  <Flex gap={4} fontSize="sm" color="gray.600">
+                  <Flex gap={4} fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>
                     <Text>
                       Spent: Rp {alert.spent_amount?.toLocaleString('id-ID')}
                     </Text>
@@ -224,13 +225,13 @@ export default function BudgetAlerts() {
           ))}
         </Stack>
       ) : !loading && (
-        <Card.Root p={12}>
+        <Card.Root p={12} bg={{ base: 'white', _dark: 'gray.800' }}>
           <Flex direction="column" align="center" gap={2}>
             <Text fontSize="5xl">🎉</Text>
-            <Text textAlign="center" fontSize="lg" fontWeight="medium" color="gray.700">
+            <Text textAlign="center" fontSize="lg" fontWeight="medium" color={{ base: 'gray.700', _dark: 'gray.200' }}>
               No alerts at the moment
             </Text>
-            <Text textAlign="center" fontSize="sm" color="gray.500">
+            <Text textAlign="center" fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
               {showUnreadOnly 
                 ? 'You have no unread alerts. Switch to "Show All" to view history.'
                 : 'Your budgets are looking good! We\'ll notify you when you reach spending thresholds.'}

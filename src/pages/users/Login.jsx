@@ -22,10 +22,12 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = async (e) => {
+      console.log(import.meta.env.VITE_API_URL);
         e.preventDefault();
         setIsLoading(true);
         try {
-          const response = await axios.post('http://localhost:8080/api/login', {
+          let url = import.meta.env.VITE_API_URL + 'login';
+          const response = await axios.post(url, {
             email,
             password
           });

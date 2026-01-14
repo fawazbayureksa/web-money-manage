@@ -30,8 +30,10 @@ export default function Banks() {
 
     const fetchBanks = async () => {
       setLoading(true);
+      
       try {
-        const response = await fetch('http://localhost:8080/api/banks');
+        let url = import.meta.env.VITE_API_URL + 'banks';
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -52,7 +54,7 @@ export default function Banks() {
           color: color,
         }
 
-        const response = await fetch('http://localhost:8080/api/banks', {
+        const response = await fetch(import.meta.env.VITE_API_URL + 'banks', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -84,7 +86,8 @@ export default function Banks() {
 
     const deleteBank = async (id) => {
       try {
-        const response = await fetch(`http://localhost:8080/api/banks/${id}`, {
+        let url = import.meta.env.VITE_API_URL + 'banks';
+        const response = await fetch(`${url}/${id}`, {
           method: 'DELETE',
         });
         if (!response.ok) {

@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
 import {
-  Flex,
   Box,
-  Input,
+  Flex,
   Stack,
-  Button,
   Heading,
-  Field,
-  HStack
+  Text,
+  Container,
+  Input,
+  Button,
+  SimpleGrid,
+  Image,
+  AbsoluteCenter,
+  Span,
 } from '@chakra-ui/react';
-
-import { toaster } from "./../../components/ui/toaster"
-
+import { Field } from '@chakra-ui/react/field'; // Adapting for Chakra V3 structure if needed, or stick to provided imports
+import { Toaster, toaster } from "./../../components/ui/toaster"
 import { useColorModeValue } from'./../../components/ui/color-mode';
 import { RiArrowRightCircleLine } from 'react-icons/ri';
 import axios from 'axios';
+
 export default function Login() {
-    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -52,47 +55,111 @@ export default function Login() {
             type: "error",
           })
         } finally {
-          console.log('Form submission finished');
           setIsLoading(false);
         }
     }
 
+  const bgColor = useColorModeValue('gray.50', 'gray.900');
+  const cardBgColor = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.600', 'gray.400');
+
   return (
-    <Flex
-      minH={'100vh'}
-      align={'center'}
-      justify={'center'}
-      bg={useColorModeValue('gray.50', 'gray.800')}
-      >
-      <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-        <Stack align={'center'}>
-          <Heading fontSize={'2xl'}>Login</Heading>
-        </Stack>
-        <Box
-          rounded={'lg'}
-          boxShadow={'lg'}
-          p={8}
-          bg={useColorModeValue('white', 'gray.700')}
-          >
-         <Field.Root required marginBottom={'20px'}>
-            <Field.Label>
-                Email <Field.RequiredIndicator />
-            </Field.Label>
-            <Input placeholder="Enter your email" onChange={(e) => setEmail(e.target.value)} />
-        </Field.Root>
-        <Field.Root required marginBottom={'20px'}>
-            <Field.Label>
-                Password <Field.RequiredIndicator />
-            </Field.Label>  
-            <Input type="password" placeholder="Enter your password"  onChange={(e) => setPassword(e.target.value)} />
-        </Field.Root>
-          <HStack>
-      <Button colorPalette="teal" variant="outline" onClick={(e) => handleLogin(e)}>
-        <RiArrowRightCircleLine /> Login
-      </Button>
-    </HStack>
-        </Box>
-      </Stack>
-    </Flex>
+    <Box position="relative" minH="100vh">
+        <Toaster />
+      <SimpleGrid columns={{ base: 1, md: 2 }} minH="100vh">
+        {/* Left Side - Hero Image (Hidden on Mobile) */}
+        <Flex
+          bg="blue.600"
+          position="relative"
+          display={{ base: 'none', md: 'flex' }}
+          align="center"
+          justify="center"
+        >
+          <Image
+            src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80"
+            alt="Money Management"
+            objectFit="cover"
+            w="full"
+            h="full"
+            opacity={0.6}
+            position="absolute"
+            top={0}
+            left={0}
+          />
+          <Stack position="relative" zIndex={1} spacing={6} px={10} color="white" textAlign="center">
+            <Heading fontSize="5xl" fontWeight="bold">
+              Manage Your Wealth
+            </Heading>
+            <Text fontSize="xl" fontWeight="medium">
+              Track expenses, budgets, and investments in one place.
+            </Text>
+          </Stack>
+        </Flex>
+
+        {/* Right Side - Login Form */}
+        <Flex bg={bgColor} align="center" justify="center" p={8}>
+          <Stack spacing={8} w="full" maxW="md">
+            <Stack spacing={2} textAlign="center">
+              <Heading fontSize="3xl">Welcome Back</Heading>
+              <Text fontSize="lg" color={textColor}>
+                Sign in to your account
+              </Text>
+            </Stack>
+
+            <Box
+              rounded="xl"
+              bg={cardBgColor}
+              boxShadow="2xl"
+              p={10}
+            >
+              <form onSubmit={handleLogin}>
+                <Stack spacing={6}>
+                  <Box>
+                    <Text mb={2} fontWeight="semibold">Email Address</Text>
+                    <Input 
+                        placeholder="you@example.com" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        size="lg"
+                        borderRadius="md"
+                    />
+                  </Box>
+
+                  <Box>
+                    <Text mb={2} fontWeight="semibold">Password</Text>
+                    <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        size="lg"
+                        borderRadius="md"
+                    />
+                  </Box>
+
+                  <Button
+                    type="submit"
+                    colorPalette="blue"
+                    size="lg"
+                    fontSize="md"
+                    isLoading={isLoading}
+                    disabled={isLoading}
+                    w="full"
+                    mt={4}
+                  >
+                   <RiArrowRightCircleLine style={{ marginRight: '8px' }} /> Sign in
+                  </Button>
+                </Stack>
+              </form>
+            </Box>
+            
+             <Text align="center" color={textColor}>
+                Don't have an account? <Span color="blue.500" fontWeight="bold" cursor="pointer">Sign up</Span>
+              </Text>
+
+          </Stack>
+        </Flex>
+      </SimpleGrid>
+    </Box>
   );
 }

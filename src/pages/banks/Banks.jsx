@@ -300,11 +300,11 @@ export default function Banks() {
             <Card.Root mb={4}>
               <Table.Root>
                 <Table.Header>
-                  <Table.Row bg="gray.50">
+                  <Table.Row bg={{ base: "gray.50", _dark: "transparent" }}>
                     <Table.ColumnHeader 
                       cursor="pointer" 
                       onClick={() => handleSort('bank_name')}
-                      _hover={{ bg: 'gray.100' }}
+                      _hover={{ bg: { base: "gray.100", _dark: "whiteAlpha.100" } }}
                     >
                       <Flex align="center" gap={2}>
                         Bank Name
@@ -317,7 +317,7 @@ export default function Banks() {
                     <Table.ColumnHeader 
                       cursor="pointer" 
                       onClick={() => handleSort('color')}
-                      _hover={{ bg: 'gray.100' }}
+                      _hover={{ bg: { base: "gray.100", _dark: "whiteAlpha.100" } }}
                     >
                       <Flex align="center" gap={2}>
                         Color
@@ -331,7 +331,7 @@ export default function Banks() {
                 </Table.Header>
                 <Table.Body>
                 {banks.map((item) => (
-                    <Table.Row key={item.id} _hover={{ bg: 'gray.50' }}>
+                    <Table.Row key={item.id} _hover={{ bg: { base: "gray.50", _dark: "whiteAlpha.100" } }}>
                     <Table.Cell fontWeight="medium">{item.bank_name}</Table.Cell>
                     <Table.Cell>
                       <Badge colorScheme="gray" variant="subtle">{item.image || 'N/A'}</Badge>

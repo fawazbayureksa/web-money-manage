@@ -175,9 +175,12 @@ export default function BudgetAlerts() {
             <Card.Root
               key={alert.id}
               p={4}
-              bg={alert.is_read ? 'white' : 'blue.50'}
+              bg={{ 
+                base: alert.is_read ? 'white' : 'blue.50', 
+                _dark: alert.is_read ? 'gray.800' : 'blue.900' 
+              }}
               borderLeft="4px solid"
-              borderColor={alert.is_read ? 'gray.200' : getSeverityColor(alert.percentage)}
+              borderColor={alert.is_read ? { base: 'gray.200', _dark: 'gray.700' } : getSeverityColor(alert.percentage)}
               _hover={{ shadow: 'md' }}
               transition="all 0.2s"
             >

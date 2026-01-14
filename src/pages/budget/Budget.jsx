@@ -315,7 +315,7 @@ export default function Budget() {
             <Card.Root mb={4}>
               <Table.Root>
                 <Table.Header>
-                  <Table.Row bg="gray.50">
+                  <Table.Row bg={{ base: "gray.50", _dark: "transparent" }}>
                     <Table.ColumnHeader>Category</Table.ColumnHeader>
                     <Table.ColumnHeader>Period</Table.ColumnHeader>
                     <Table.ColumnHeader>Budget Amount</Table.ColumnHeader>
@@ -327,7 +327,7 @@ export default function Budget() {
                 </Table.Header>
                 <Table.Body>
                   {budgets.map((budget) => (
-                    <Table.Row key={budget.id} _hover={{ bg: 'gray.50' }}>
+                    <Table.Row key={budget.id} _hover={{ bg: { base: "gray.50", _dark: "whiteAlpha.100" } }}>
                       <Table.Cell fontWeight="medium">{budget.category_name}</Table.Cell>
                       <Table.Cell>
                         <Badge colorScheme="gray" textTransform="capitalize">

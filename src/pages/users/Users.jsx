@@ -7,7 +7,6 @@ import {
   Table,
   Text,
   Button,
-  useDisclosure,
   Dialog,
   Portal,
   CloseButton,
@@ -16,7 +15,8 @@ import {
   Flex,
   Stack,
   Badge,
-  Card
+  Card,
+  NativeSelect
 } from "@chakra-ui/react";
 import Config from '../../components/axios/Config';
 import axios from 'axios';
@@ -92,7 +92,7 @@ export default function Users() {
 
     const deleteUser = async (id) => {
       try {
-        const response = await fetch(`http://localhost:8080/api/users/${id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}users/${id}`, {
           method: 'DELETE',
         });
         if (!response.ok) {
@@ -108,12 +108,6 @@ export default function Users() {
       if (window.confirm('Are you sure you want to delete this user?')) {
         deleteUser(id);
       }
-    }
-
-    const handleEdit = (id, data) => {
-      setModal(true)
-      setName(data.name)
-      setEmail(data.email)
     }
 
     const handleSearch = () => {
@@ -186,45 +180,36 @@ export default function Users() {
               }}
               maxW="250px"
             />
-            <select
-              value={filterIsAdmin}
-              onChange={(e) => {
-                setFilterIsAdmin(e.target.value);
-                setPage(1);
-              }}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
-                border: '1px solid #E2E8F0',
-                fontSize: '14px',
-                minWidth: '150px'
-              }}
-            >
-              <option value="">All Users</option>
-              <option value="true">Admin Only</option>
-              <option value="false">Non-Admin</option>
-            </select>
-            <Box flex={1} />
-            <Flex gap={2} align="center">
-              <Text fontSize="sm" color="gray.600">Items per page:</Text>
-              <select
-                value={pageSize}
+            <NativeSelect.Root maxW="150px">
+              <NativeSelect.Field
+                value={filterIsAdmin}
                 onChange={(e) => {
-                  setPageSize(Number(e.target.value));
+                  setFilterIsAdmin(e.target.value);
                   setPage(1);
                 }}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #E2E8F0',
-                  fontSize: '14px'
-                }}
               >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
+                <option value="">All Users</option>
+                <option value="true">Admin Only</option>
+                <option value="false">Non-Admin</option>
+              </NativeSelect.Field>
+            </NativeSelect.Root>
+            <Box flex={1} />
+            <Flex gap={2} align="center">
+              <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>Items per page:</Text>
+              <NativeSelect.Root maxW="100px">
+                <NativeSelect.Field
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setPage(1);
+                  }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </NativeSelect.Field>
+              </NativeSelect.Root>
             </Flex>
           </Flex>
 
@@ -268,11 +253,11 @@ export default function Users() {
           <Card.Root mb={4}>
             <Table.Root>
               <Table.Header>
-                <Table.Row bg="gray.50">
+                <Table.Row bg={{ base: 'gray.50', _dark: 'gray.700' }}>
                   <Table.ColumnHeader 
                     cursor="pointer" 
                     onClick={() => handleSort('name')}
-                    _hover={{ bg: 'gray.100' }}
+                    _hover={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
                   >
                     <Flex align="center" gap={2}>
                       Name
@@ -299,7 +284,7 @@ export default function Users() {
               </Table.Header>
               <Table.Body>
                 {users.map((user) => (
-                  <Table.Row key={user.id} _hover={{ bg: 'gray.50' }}>
+                  <Table.Row key={user.id} _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}>
                     <Table.Cell fontWeight="medium">{user.name}</Table.Cell>
                     <Table.Cell color="gray.600">{user.email}</Table.Cell>
                     <Table.Cell>
@@ -336,7 +321,7 @@ export default function Users() {
 
           {/* Pagination */}
           <Flex justify="space-between" align="center" mt={4}>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>
               Showing {((page - 1) * pageSize) + 1} to {Math.min(page * pageSize, totalItems)} of {totalItems} entries
             </Text>
             <Flex gap={2}>
@@ -405,7 +390,7 @@ export default function Users() {
         </>
       ) : !loading && (
           <Card.Root p={12}>
-            <Text textAlign="center" fontSize="lg" color="gray.500">
+            <Text textAlign="center" fontSize="lg" color={{ base: 'gray.500', _dark: 'gray.400' }}>
               No users found. Try adjusting your filters.
             </Text>
           </Card.Root>

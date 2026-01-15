@@ -36,7 +36,7 @@ export function useValueVisibility() {
 
 // Standalone hook for local state (when provider is not needed)
 export function useLocalValueVisibility() {
-  const [isHidden, setIsHidden] = useState(false);
+  const [isHidden, setIsHidden] = useState(true);
 
   const toggleVisibility = useCallback(() => {
     setIsHidden(prev => !prev);

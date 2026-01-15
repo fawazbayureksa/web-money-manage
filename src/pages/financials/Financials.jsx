@@ -445,12 +445,12 @@ export default function Financials() {
                       {idx + 1}
                     </Box>
                     <Box>
-                      <Text fontWeight="medium">{cat.category_name}</Text>
+                      <Text fontWeight="medium" color={{ base: 'gray.800', _dark: 'white' }}>{cat.category_name}</Text>
                       <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>{cat.count} transactions</Text>
                     </Box>
                   </Flex>
                   <Box textAlign="right">
-                    <Text fontWeight="bold">{displayCurrency(cat.total_amount)}</Text>
+                    <Text fontWeight="bold" color={{ base: 'gray.800', _dark: 'white' }}>{displayCurrency(cat.total_amount)}</Text>
                     <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>{displayPercentage(cat.percentage)}</Text>
                   </Box>
                 </Flex>

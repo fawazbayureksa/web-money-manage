@@ -140,6 +140,7 @@ export default function Login() {
                     type="submit"
                     colorPalette="blue"
                     size="lg"
+                    bg={"blue.600"}
                     fontSize="md"
                     isLoading={isLoading}
                     disabled={isLoading}

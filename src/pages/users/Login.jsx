@@ -13,7 +13,6 @@ import {
   AbsoluteCenter,
   Span,
 } from '@chakra-ui/react';
-import { Field } from '@chakra-ui/react/field'; // Adapting for Chakra V3 structure if needed, or stick to provided imports
 import { Toaster, toaster } from "./../../components/ui/toaster"
 import { useColorModeValue } from'./../../components/ui/color-mode';
 import { RiArrowRightCircleLine } from 'react-icons/ri';

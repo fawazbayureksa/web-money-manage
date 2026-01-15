@@ -19,9 +19,13 @@ import Financials from './pages/financials/Financials'
 
 function Layout() {
   return (
-    <Box>
+    <Box minH="100vh">
       <Sidebar />
-      <Box ml="250px" p="6">
+      <Box 
+        ml={{ base: 0, lg: "260px" }} 
+        p={{ base: 4, md: 6, lg: 8 }}
+        transition="margin 0.3s ease-in-out"
+      >
         <Toaster />
         <Outlet />
       </Box>
@@ -35,10 +39,10 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    if (token && user) {
+    const storedUser = localStorage.getItem('user');
+    if (token && storedUser) {
       setToken(token);
-      setUser(user);
+      setUser(storedUser);
     } else {
       setUser(null);
       setToken(null);

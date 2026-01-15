@@ -64,7 +64,7 @@ export default function Transaction() {
       banksData.map(bank => {
         arr.push({
           label: bank.bank_name,
-          value: bank.id
+          value: String(bank.id)
         })
       })
       setBanks(arr)
@@ -87,7 +87,7 @@ export default function Transaction() {
       categoriesData.map(category => {
         arr.push({
           label: category.CategoryName,
-          value: category.ID
+          value: String(category.ID)
         })
       })
       setCategories(arr)
@@ -111,7 +111,7 @@ export default function Transaction() {
   const handleSelectChange = (field, val) => {
     setFormData(prevData => ({
       ...prevData,
-      [field]: parseInt(val[0])
+      [field]: val[0] ? parseInt(val[0]) : ''
     }))
   }
 

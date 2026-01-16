@@ -28,6 +28,8 @@ import StatCard from '../../components/dashboard/StatCard';
 import MonthlyComparisonChart from '../../components/dashboard/MonthlyComparisonChart';
 import CategoryDonutChart from '../../components/dashboard/CategoryDonutChart';
 import NetSavingsChart from '../../components/dashboard/NetSavingsChart';
+import { VisibilityToggle } from '../../components/ui/VisibilityToggle';
+import { useLocalValueVisibility } from '../../hooks/useValueVisibility';
 
 /**
  * Format currency for IDR
@@ -123,6 +125,19 @@ const Dashboard = () => {
     return 'Good evening';
   };
 
+    // Value visibility hook
+  const { isHidden, toggleVisibility, formatValue } = useLocalValueVisibility();
+  
+   // Format currency with visibility check
+  const displayCurrency = (amount) => {
+    return formatValue(amount, formatCurrency);
+  };
+
+  // Format percentage with visibility check
+  const displayPercentage = (value, decimals = 1) => {
+    return formatValue(value, (v) => `${(v || 0).toFixed(decimals)}%`);
+  };
+
   return (
     <Box maxW="7xl" mx="auto" px={4} py={6}>
       {/* Header */}
@@ -130,9 +145,12 @@ const Dashboard = () => {
         <Heading as="h1" size="xl" fontWeight="bold" mb={2}>
           {getGreeting()}, {userName} 👋
         </Heading>
-        <Text color={subtitleColor} fontSize="lg">
-          Here's your financial overview
-        </Text>
+        <Flex align="center" justifyContent={"space-between"} gap={4}>
+          <Text color={subtitleColor} fontSize="lg">
+            Here's your financial overview
+          </Text>
+          <VisibilityToggle isHidden={isHidden} onToggle={toggleVisibility} />
+          </Flex>
       </Box>
 
       {/* Summary Stats */}
@@ -149,7 +167,7 @@ const Dashboard = () => {
           <StatCard
             title="Total Income"
             value={yearlyData?.total_income || 0}
-            formatValue={formatCurrency}
+            formatValue={displayCurrency}
             icon={FiTrendingUp}
             colorScheme="green"
             change={incomeChange}
@@ -158,7 +176,7 @@ const Dashboard = () => {
           <StatCard
             title="Total Expense"
             value={yearlyData?.total_expense || 0}
-            formatValue={formatCurrency}
+            formatValue={displayCurrency}
             icon={FiTrendingDown}
             colorScheme="red"
             change={expenseChange}
@@ -167,7 +185,7 @@ const Dashboard = () => {
           <StatCard
             title="Net Savings"
             value={yearlyData?.net_savings || 0}
-            formatValue={formatCurrency}
+            formatValue={displayCurrency}
             icon={FiDollarSign}
             colorScheme="blue"
           />
@@ -340,21 +358,21 @@ const Dashboard = () => {
             <VStack>
               <Text color={subtitleColor} fontSize="sm">This Month Income</Text>
               <Text fontSize="xl" fontWeight="bold" color="green.500">
-                {formatCurrency(latestIncome)}
+                {displayCurrency(latestIncome)}
               </Text>
             </VStack>
             <Box h="40px" w="1px" bg={borderColor} display={{ base: 'none', md: 'block' }} />
             <VStack>
               <Text color={subtitleColor} fontSize="sm">This Month Expense</Text>
               <Text fontSize="xl" fontWeight="bold" color="red.500">
-                {formatCurrency(latestExpense)}
+                {displayCurrency(latestExpense)}
               </Text>
             </VStack>
             <Box h="40px" w="1px" bg={borderColor} display={{ base: 'none', md: 'block' }} />
             <VStack>
               <Text color={subtitleColor} fontSize="sm">This Month Net</Text>
               <Text fontSize="xl" fontWeight="bold" color={latestNet >= 0 ? 'blue.500' : 'red.500'}>
-                {formatCurrency(latestNet)}
+                {displayCurrency(latestNet)}
               </Text>
             </VStack>
           </Flex>

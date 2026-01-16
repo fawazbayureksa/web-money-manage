@@ -12,6 +12,7 @@ import Category from './pages/category/Category'
 import { Toaster } from './components/ui/toaster'
 import Logout from './components/Logout'
 import Transaction from './pages/transaction/Transaction'
+import ListTransaction from './pages/transaction/ListTransaction'
 import Budget from './pages/budget/Budget'
 import BudgetForm from './pages/budget/BudgetForm'
 import BudgetAlerts from './pages/budget/BudgetAlerts'
@@ -21,8 +22,8 @@ function Layout() {
   return (
     <Box minH="100vh">
       <Sidebar />
-      <Box 
-        ml={{ base: 0, lg: "260px" }} 
+      <Box
+        ml={{ base: 0, lg: "260px" }}
         p={{ base: 4, md: 6, lg: 8 }}
         transition="margin 0.3s ease-in-out"
       >
@@ -50,6 +51,7 @@ function App() {
   }, []);
 
   const handleLogout = () => {
+    console.log(user);
     setUser(null);
     setToken(null);
   }
@@ -69,6 +71,7 @@ function App() {
           <Route path="banks" element={<Banks />} />
           <Route path="categories" element={<Category />} />
           <Route path="transaction" element={<Transaction />} />
+          <Route path="transactions" element={<ListTransaction />} />
           <Route path="budget" element={<Budget />} />
           <Route path="budget/new" element={<BudgetForm />} />
           <Route path="budget/edit/:id" element={<BudgetForm />} />

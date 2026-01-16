@@ -1,29 +1,30 @@
 import React, { useState } from 'react'
-import { 
-  Box, 
-  Flex, 
-  Icon, 
-  Text, 
-  VStack, 
+import {
+  Box,
+  Flex,
+  Icon,
+  Text,
+  VStack,
   useBreakpointValue,
   Circle,
   IconButton,
   HStack,
 } from '@chakra-ui/react'
 import { useColorModeValue } from '../ui/color-mode'
-import { 
-  FiHome, 
-  FiUser, 
-  FiSettings, 
-  FiDollarSign, 
-  FiHardDrive, 
-  FiArrowLeft, 
-  FiPackage, 
-  FiTrendingUp, 
-  FiBell, 
+import {
+  FiHome,
+  FiUser,
+  FiSettings,
+  FiDollarSign,
+  FiHardDrive,
+  FiArrowLeft,
+  FiPackage,
+  FiTrendingUp,
+  FiBell,
   FiPieChart,
   FiMenu,
-  FiX
+  FiX,
+  FiList
 } from 'react-icons/fi'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -41,7 +42,8 @@ const Sidebar = () => {
     { label: 'Users', icon: FiUser, path: '/users' },
     { label: 'Banks', icon: FiDollarSign, path: '/banks' },
     { label: 'Category', icon: FiHardDrive, path: '/categories' },
-    { label: 'Transaction', icon: FiPackage, path: '/transaction' },
+    { label: 'Add Transaction', icon: FiPackage, path: '/transaction' },
+    { label: 'Transactions', icon: FiList, path: '/transactions' },
     { label: 'Budget', icon: FiTrendingUp, path: '/budget' },
     { label: 'Budget Alerts', icon: FiBell, path: '/budget-alerts' },
     { label: 'Settings', icon: FiSettings, path: '/settings' },

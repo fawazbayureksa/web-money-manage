@@ -269,7 +269,7 @@ export default function Users() {
                   <Table.ColumnHeader 
                     cursor="pointer" 
                     onClick={() => handleSort('email')}
-                    _hover={{ bg: 'gray.100' }}
+                    _hover={{ bg: { base: "gray.100", _dark: "whiteAlpha.100" } }}
                   >
                     <Flex align="center" gap={2}>
                       Email

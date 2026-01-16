@@ -39,7 +39,7 @@ const Sidebar = () => {
   const menuItems = [
     { label: 'Dashboard', icon: FiHome, path: '/' },
     { label: 'Financials', icon: FiPieChart, path: '/financials' },
-    { label: 'Users', icon: FiUser, path: '/users' },
+    // { label: 'Users', icon: FiUser, path: '/users' },
     { label: 'Banks', icon: FiDollarSign, path: '/banks' },
     { label: 'Category', icon: FiHardDrive, path: '/categories' },
     { label: 'Add Transaction', icon: FiPackage, path: '/transaction' },

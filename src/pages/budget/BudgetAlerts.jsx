@@ -13,7 +13,8 @@ import {
   GridItem,
   Circle,
   VStack,
-  HStack
+  HStack,
+  Input
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -23,8 +24,7 @@ import {
   FaArrowRight,
   FaCheckDouble
 } from "react-icons/fa6";
-import axios from 'axios';
-import Config from '../../components/axios/Config';
+import { api } from '../../components/axios/Config';
 import { toaster } from "./../../components/ui/toaster";
 
 const MotionBox = motion(Box);
@@ -35,21 +35,41 @@ export default function BudgetAlerts() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  
+  // Sort states
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortDir, setSortDir] = useState('desc');
 
   useEffect(() => {
     fetchAlerts();
-  }, [showUnreadOnly]);
+  }, [showUnreadOnly, page, pageSize, sortBy, sortDir]);
 
   const fetchAlerts = async () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
 
     try {
-      const params = showUnreadOnly ? '?unread_only=true' : '';
-      const url = import.meta.env.VITE_API_URL + `budget-alerts${params}`;
-      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      const params = new URLSearchParams({
+        page: page.toString(),
+        page_size: pageSize.toString(),
+        sort_by: sortBy,
+        sort_dir: sortDir
+      });
+      
+      if (showUnreadOnly) {
+        params.append('unread_only', 'true');
+      }
 
-      setAlerts(response.data.data || []);
+      const response = await api.get(`budget-alerts?${params.toString()}`);
+
+      setAlerts(response.data.data?.data || []);
+      setTotalPages(response.data.data?.total_pages || 1);
+      setTotalItems(response.data.data?.total_items || 0);
     } catch (error) {
       console.error(error);
       setError(error.message);
@@ -63,14 +83,8 @@ export default function BudgetAlerts() {
   };
 
   const markAsRead = async (alertId) => {
-    const token = localStorage.getItem('token');
-
     try {
-      await axios.put(
-        `${import.meta.env.VITE_API_URL}budget-alerts/${alertId}/read`,
-        {},
-        Config({ Authorization: `Bearer ${token}` })
-      );
+      await api.put(`budget-alerts/${alertId}/read`, {});
 
       toaster.create({
         description: "Alert marked as read",
@@ -89,18 +103,12 @@ export default function BudgetAlerts() {
   };
 
   const markAllAsRead = async () => {
-    const token = localStorage.getItem('token');
-
     try {
       const unreadAlerts = alerts.filter(alert => !alert.is_read);
       
       await Promise.all(
         unreadAlerts.map(alert =>
-          axios.put(
-            `${import.meta.env.VITE_API_URL}budget-alerts/${alert.id}/read`,
-            {},
-            Config({ Authorization: `Bearer ${token}` })
-          )
+          api.put(`budget-alerts/${alert.id}/read`, {})
         )
       );
 
@@ -137,11 +145,11 @@ export default function BudgetAlerts() {
   };
 
   const stats = useMemo(() => {
-    const total = alerts.length;
+    const total = totalItems;
     const unread = alerts.filter(a => !a.is_read).length;
     const critical = alerts.filter(a => a.percentage >= 100).length;
     return { total, unread, critical };
-  }, [alerts]);
+  }, [alerts, totalItems]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -271,6 +279,7 @@ export default function BudgetAlerts() {
       )}
 
       {!loading && alerts.length > 0 ? (
+        <>
         <MotionStack 
           gap={4}
           variants={containerVariants}
@@ -358,15 +367,6 @@ export default function BudgetAlerts() {
                             Mark as Read
                           </Button>
                         )}
-                        {/* <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          colorPalette="gray" 
-                          borderRadius="lg"
-                          px={2}
-                        >
-                          <FaArrowRight />
-                        </Button> */}
                       </Flex>
                     </Flex>
                   </Card.Body>
@@ -375,6 +375,109 @@ export default function BudgetAlerts() {
             );
           })}
         </MotionStack>
+        
+        {/* Pagination */}
+        {totalPages > 0 && (
+          <Card.Root mt={6} p={4} bg={{ base: 'white', _dark: 'gray.800' }} borderRadius="2xl">
+            <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
+              <Flex align="center" gap={2}>
+                <Text fontSize="sm" color="gray.500">
+                  Showing {((page - 1) * pageSize) + 1} to {Math.min(page * pageSize, totalItems)} of {totalItems} alerts
+                </Text>
+              </Flex>
+              
+              <Flex align="center" gap={2}>
+                <Text fontSize="sm" color="gray.600">Items per page:</Text>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setPage(1);
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #E2E8F0',
+                    fontSize: '14px',
+                    background: 'transparent'
+                  }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </Flex>
+
+              <Flex gap={2}>
+                <Button
+                  size="sm"
+                  onClick={() => setPage(1)}
+                  disabled={page === 1}
+                  variant="outline"
+                  borderRadius="lg"
+                >
+                  First
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setPage(page - 1)}
+                  disabled={page === 1}
+                  variant="outline"
+                  borderRadius="lg"
+                >
+                  Previous
+                </Button>
+                <Flex gap={1}>
+                  {[...Array(Math.min(5, totalPages))].map((_, idx) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = idx + 1;
+                    } else if (page <= 3) {
+                      pageNum = idx + 1;
+                    } else if (page >= totalPages - 2) {
+                      pageNum = totalPages - 4 + idx;
+                    } else {
+                      pageNum = page - 2 + idx;
+                    }
+                    return (
+                      <Button
+                        key={pageNum}
+                        size="sm"
+                        onClick={() => setPage(pageNum)}
+                        variant={page === pageNum ? 'solid' : 'outline'}
+                        colorPalette={page === pageNum ? 'blue' : 'gray'}
+                        color={page === pageNum ? 'blue' : 'gray'}
+                        borderRadius="lg"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </Flex>
+                <Button
+                  size="sm"
+                  onClick={() => setPage(page + 1)}
+                  disabled={page === totalPages}
+                  variant="outline"
+                  borderRadius="lg"
+                >
+                  Next
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setPage(totalPages)}
+                  disabled={page === totalPages}
+                  variant="outline"
+                  borderRadius="lg"
+                >
+                  Last
+                </Button>
+              </Flex>
+            </Flex>
+          </Card.Root>
+        )}
+      </>
       ) : !loading && (
         <AnimatePresence mode="wait">
           <MotionBox

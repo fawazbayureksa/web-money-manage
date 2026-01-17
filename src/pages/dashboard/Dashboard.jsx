@@ -12,8 +12,7 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { useColorModeValue } from '../../components/ui/color-mode';
-import axios from 'axios';
-import Config from '../../components/axios/Config';
+import { api } from '../../components/axios/Config';
 import { toaster } from '../../components/ui/toaster';
 import {
   FiTrendingUp,
@@ -77,9 +76,7 @@ const Dashboard = () => {
 
   const fetchMonthlyComparison = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const url = `${import.meta.env.VITE_API_URL}analytics/monthly-comparison?months=6`;
-      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      const response = await api.get('analytics/monthly-comparison?months=6');
       setMonthlyData(response.data.data || []);
     } catch (error) {
       console.error('Error fetching monthly comparison:', error);
@@ -94,10 +91,8 @@ const Dashboard = () => {
 
   const fetchYearlyReport = async () => {
     try {
-      const token = localStorage.getItem('token');
       const currentYear = new Date().getFullYear();
-      const url = `${import.meta.env.VITE_API_URL}analytics/yearly-report?year=${currentYear}`;
-      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      const response = await api.get(`analytics/yearly-report?year=${currentYear}`);
       setYearlyData(response.data.data || null);
     } catch (error) {
       console.error('Error fetching yearly report:', error);

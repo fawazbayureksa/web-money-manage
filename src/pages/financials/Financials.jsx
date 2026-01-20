@@ -33,7 +33,49 @@ export default function Financials() {
   // Value visibility hook
   const { isHidden, toggleVisibility, formatValue } = useLocalValueVisibility();
 
-   const fetchAllAnalytics = useCallback(async () => {
+  const fetchDashboard = useCallback(async (token) => {
+    try {
+      const url = import.meta.env.VITE_API_URL + 'analytics/dashboard';
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      setDashboardData(response.data.data);
+    } catch (error) {
+      console.error('Error fetching dashboard:', error);
+    }
+  }, []);
+
+  const fetchSpendingByCategory = useCallback(async (token) => {
+    try {
+      const params = new URLSearchParams(dateRange);
+      const url = import.meta.env.VITE_API_URL + `analytics/spending-by-category?${params}`;
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      setSpendingByCategory(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching spending by category:', error);
+    }
+  }, [dateRange]);
+
+  const fetchSpendingByBank = useCallback(async (token) => {
+    try {
+      const params = new URLSearchParams(dateRange);
+      const url = import.meta.env.VITE_API_URL + `analytics/spending-by-bank?${params}`;
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      setSpendingByBank(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching spending by bank:', error);
+    }
+  }, [dateRange]);
+
+  const fetchMonthlyComparison = async (token) => {
+    try {
+      const url = import.meta.env.VITE_API_URL + 'analytics/monthly-comparison?months=6';
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      setMonthlyComparison(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching monthly comparison:', error);
+    }
+  };
+
+  const fetchAllAnalytics = useCallback(async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
 
@@ -53,53 +95,11 @@ export default function Financials() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchDashboard, fetchSpendingByCategory, fetchSpendingByBank]);
 
   useEffect(() => {
     fetchAllAnalytics();
   }, [fetchAllAnalytics]);
-
-  const fetchDashboard = async (token) => {
-    try {
-      const url = import.meta.env.VITE_API_URL + 'analytics/dashboard';
-      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
-      setDashboardData(response.data.data);
-    } catch (error) {
-      console.error('Error fetching dashboard:', error);
-    }
-  };
-
-  const fetchSpendingByCategory = async (token) => {
-    try {
-      const params = new URLSearchParams(dateRange);
-      const url = import.meta.env.VITE_API_URL + `analytics/spending-by-category?${params}`;
-      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
-      setSpendingByCategory(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching spending by category:', error);
-    }
-  };
-
-  const fetchSpendingByBank = async (token) => {
-    try {
-      const params = new URLSearchParams(dateRange);
-      const url = import.meta.env.VITE_API_URL + `analytics/spending-by-bank?${params}`;
-      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
-      setSpendingByBank(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching spending by bank:', error);
-    }
-  };
-
-  const fetchMonthlyComparison = async (token) => {
-    try {
-      const url = import.meta.env.VITE_API_URL + 'analytics/monthly-comparison?months=6';
-      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
-      setMonthlyComparison(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching monthly comparison:', error);
-    }
-  };
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;

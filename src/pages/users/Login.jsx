@@ -153,9 +153,9 @@ export default function Login() {
               </form>
             </Box>
             
-             <Text align="center" color={textColor}>
-                Don't have an account? <Span color="blue.500" fontWeight="bold" cursor="pointer">Sign up</Span>
-              </Text>
+              <Text align="center" color={textColor}>
+                 Don't have an account? <Span onClick={() => window.location.href = '/register'} color="blue.500" fontWeight="bold" cursor="pointer">Sign up</Span>
+               </Text>
 
           </Stack>
         </Flex>

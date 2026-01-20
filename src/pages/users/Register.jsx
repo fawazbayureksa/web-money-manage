@@ -29,7 +29,7 @@ export default function Register() {
         setIsLoading(true);
         let url = import.meta.env.VITE_API_URL + 'register';
         try {
-            const response = await axios.post(url, {
+            await axios.post(url, {
                 name,
                 email,
                 password,
@@ -46,7 +46,7 @@ export default function Register() {
             setPassword('');
             setAddress('');
             window.location.href = '/login';
-        } catch (error) {
+        } catch {
             toaster.create({
                 description: "Registration failed",
                 type: "error",

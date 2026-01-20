@@ -128,10 +128,7 @@ const Dashboard = () => {
     return formatValue(amount, formatCurrency);
   };
 
-  // Format percentage with visibility check
-  const displayPercentage = (value, decimals = 1) => {
-    return formatValue(value, (v) => `${(v || 0).toFixed(decimals)}%`);
-  };
+
 
   return (
     <Box maxW="7xl" mx="auto" px={4} py={6}>

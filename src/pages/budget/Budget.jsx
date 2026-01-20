@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Heading,
@@ -35,12 +35,7 @@ export default function Budget() {
   const [sortBy, setSortBy] = useState('');
   const [sortDir, setSortDir] = useState('asc');
 
-  useEffect(() => {
-    fetchBudgets();
-    fetchCategories();
-  }, [page, pageSize, filterCategoryId, filterPeriod, filterIsActive, sortBy, sortDir]);
-
-  const fetchBudgets = async () => {
+  const fetchBudgets = useCallback(async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
 
@@ -74,7 +69,12 @@ export default function Budget() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize, filterCategoryId, filterPeriod, filterIsActive, sortBy, sortDir]);
+
+  useEffect(() => {
+    fetchBudgets();
+    fetchCategories();
+  }, [fetchBudgets]);
 
   const fetchCategories = async () => {
     try {
@@ -122,15 +122,7 @@ export default function Budget() {
     }
   };
 
-  const handleSort = (field) => {
-    if (sortBy === field) {
-      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortDir('asc');
-    }
-    setPage(1);
-  };
+
 
   const handleClearFilters = () => {
     setFilterCategoryId('');
@@ -160,10 +152,7 @@ export default function Budget() {
     return 'green';
   };
 
-  const periodOptions = [
-    { value: 'monthly', label: 'Monthly' },
-    { value: 'yearly', label: 'Yearly' }
-  ];
+
 
   return (
     <>

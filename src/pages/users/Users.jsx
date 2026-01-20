@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Box,
   Heading,
@@ -42,11 +42,7 @@ export default function Users() {
   const [sortBy, setSortBy] = useState('');
   const [sortDir, setSortDir] = useState('asc');
   
-  useEffect(() => {
-    fetchUsers();
-  }, [page, pageSize, search, filterName, filterIsAdmin, sortBy, sortDir]);
-
-    const fetchUsers = async () => {
+     const fetchUsers = useCallback(async () => {
       setLoading(true);
       const token = localStorage.getItem('token');
      
@@ -88,9 +84,13 @@ export default function Users() {
         setError(error.message);
         setLoading(false);
       }
-    };
+    }, [page, pageSize, search, filterName, filterIsAdmin, sortBy, sortDir]);
 
-    const deleteUser = async (id) => {
+   useEffect(() => {
+     fetchUsers();
+   }, [fetchUsers]);
+
+     const deleteUser = async (id) => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}users/${id}`, {
           method: 'DELETE',

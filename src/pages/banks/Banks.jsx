@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Box,
   Heading,
@@ -40,12 +40,8 @@ export default function Banks() {
   const [sortBy, setSortBy] = useState('');
   const [sortDir, setSortDir] = useState('asc');
 
-  
-  useEffect(() => {
-    fetchBanks();
-  }, [page, pageSize, search, filterBankName, filterColor, sortBy, sortDir]);
 
-    const fetchBanks = async () => {
+     const fetchBanks = useCallback(async () => {
       setLoading(true);
       
       try {
@@ -80,9 +76,13 @@ export default function Banks() {
       } finally {
         setLoading(false);
       }
-    };
+     }, [page, pageSize, search, filterBankName, filterColor, sortBy, sortDir]);
 
-    const handleAddBank = async () => {
+   useEffect(() => {
+     fetchBanks();
+   }, [fetchBanks]);
+
+     const handleAddBank = async () => {
       try {
         let body = {
           bank_name: bankName,

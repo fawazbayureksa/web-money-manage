@@ -30,11 +30,11 @@ export default function StatCard({
     const colors = colorMap[colorScheme] || colorMap.blue;
     const iconColor = useColorModeValue(colors.light, colors.dark);
     const iconBg = useColorModeValue(colors.bg, colors.bgDark);
+    const positiveChangeColor = useColorModeValue('green.600', 'green.400');
+    const negativeChangeColor = useColorModeValue('red.600', 'red.400');
 
     const isPositiveChange = change > 0;
-    const changeColor = isPositiveChange
-        ? useColorModeValue('green.600', 'green.400')
-        : useColorModeValue('red.600', 'red.400');
+    const changeColor = isPositiveChange ? positiveChangeColor : negativeChangeColor;
 
     const displayValue = formatValue ? formatValue(value) : value;
 

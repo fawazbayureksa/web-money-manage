@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Box,
   Heading,
@@ -42,23 +42,15 @@ export default function BudgetAlerts() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   
-  // Sort states
-  const [sortBy, setSortBy] = useState('created_at');
-  const [sortDir, setSortDir] = useState('desc');
 
-  useEffect(() => {
-    fetchAlerts();
-  }, [showUnreadOnly, page, pageSize, sortBy, sortDir]);
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     setLoading(true);
 
     try {
       const params = new URLSearchParams({
         page: page.toString(),
-        page_size: pageSize.toString(),
-        sort_by: sortBy,
-        sort_dir: sortDir
+        page_size: pageSize.toString()
       });
       
       if (showUnreadOnly) {
@@ -80,7 +72,11 @@ export default function BudgetAlerts() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize, showUnreadOnly]);
+
+  useEffect(() => {
+    fetchAlerts();
+  }, [fetchAlerts]);
 
   const markAsRead = async (alertId) => {
     try {

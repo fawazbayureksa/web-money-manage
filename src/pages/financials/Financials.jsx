@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Heading,
@@ -33,11 +33,7 @@ export default function Financials() {
   // Value visibility hook
   const { isHidden, toggleVisibility, formatValue } = useLocalValueVisibility();
 
-  useEffect(() => {
-    fetchAllAnalytics();
-  }, []);
-
-  const fetchAllAnalytics = async () => {
+   const fetchAllAnalytics = useCallback(async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
 
@@ -57,7 +53,11 @@ export default function Financials() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAllAnalytics();
+  }, [fetchAllAnalytics]);
 
   const fetchDashboard = async (token) => {
     try {

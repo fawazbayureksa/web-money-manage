@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
-import { useColorModeValue } from '../ui/color-mode';
 import {
     PieChart,
     Pie,
@@ -82,10 +81,8 @@ const CustomLegend = ({ payload }) => {
  */
 export default function CategoryDonutChart({
     data = [],
-    title,
     emptyMessage = "No data available"
 }) {
-    const textColor = useColorModeValue('gray.600', 'gray.400');
 
     // Transform data for chart - ensure we have name and value
     const chartData = data.map((item, index) => ({

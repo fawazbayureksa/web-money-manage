@@ -1,4 +1,5 @@
 import './ProgressBar.css';
+/* eslint-disable react-refresh/only-export-components */
 import axios from 'axios';
 
 const Config = (customHeaders = {}, params = null) => {

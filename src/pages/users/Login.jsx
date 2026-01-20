@@ -48,7 +48,7 @@ export default function Login() {
               type: "error",
             })
           }
-        } catch (error) {
+        } catch {
           toaster.create({
             description: "Failed to login",
             type: "error",

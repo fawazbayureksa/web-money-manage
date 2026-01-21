@@ -17,6 +17,8 @@ import Budget from './pages/budget/Budget'
 import BudgetForm from './pages/budget/BudgetForm'
 import BudgetAlerts from './pages/budget/BudgetAlerts'
 import Financials from './pages/financials/Financials'
+import WalletDashboard from './pages/wallets/WalletDashboard'
+import WalletForm from './pages/wallets/WalletForm'
 
 function Layout() {
   return (
@@ -69,6 +71,9 @@ function App() {
           <Route path="users" element={<Users />} />
           <Route path="settings" element={<Settings />} />
           <Route path="banks" element={<Banks />} />
+          <Route path="wallets" element={<WalletDashboard />} />
+          <Route path="wallets/new" element={<WalletForm />} />
+          <Route path="wallets/edit/:id" element={<WalletForm />} />
           <Route path="categories" element={<Category />} />
           <Route path="transaction" element={<Transaction />} />
           <Route path="transactions" element={<ListTransaction />} />

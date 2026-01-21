@@ -24,7 +24,8 @@ import {
   FiPieChart,
   FiMenu,
   FiX,
-  FiList
+  FiList,
+  FiCreditCard
 } from 'react-icons/fi'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -41,6 +42,7 @@ const Sidebar = () => {
     { label: 'Financials', icon: FiPieChart, path: '/financials' },
     // { label: 'Users', icon: FiUser, path: '/users' },
     { label: 'Banks', icon: FiDollarSign, path: '/banks' },
+    { label: 'Wallets', icon: FiCreditCard, path: '/wallets' },
     { label: 'Category', icon: FiHardDrive, path: '/categories' },
     { label: 'Add Transaction', icon: FiPackage, path: '/transaction' },
     { label: 'Transactions', icon: FiList, path: '/transactions' },

@@ -24,6 +24,8 @@ import { useNavigate } from 'react-router-dom';
 // Components
 import WalletList from '../../components/wallets/WalletList';
 import WalletSummaryChart from '../../components/wallets/WalletSummaryChart';
+import { VisibilityToggle } from '../../components/ui/VisibilityToggle';
+import { useLocalValueVisibility } from '../../hooks/useValueVisibility';
 
 const WalletDashboard = () => {
   const navigate = useNavigate();
@@ -33,6 +35,19 @@ const WalletDashboard = () => {
   const [summaryLoading, setSummaryLoading] = useState(true);
 
   const cardBg = useColorModeValue('white', 'gray.800');
+
+  // Value visibility hook
+  const { isHidden, toggleVisibility, formatValue } = useLocalValueVisibility();
+
+  // Format currency with visibility check
+  const displayCurrency = (amount, currency) => {
+    return formatValue(amount, (value) => formatCurrency(value, currency));
+  };
+
+  // Format number with visibility check
+  const displayNumber = (value) => {
+    return formatValue(value, (val) => val.toLocaleString('id-ID'));
+  };
 
   useEffect(() => {
     fetchWallets();
@@ -124,14 +139,17 @@ const WalletDashboard = () => {
               Manage your assets and track balances across different accounts
             </Text>
           </Box>
-          <Button
-            colorPalette="blue"
-            size="lg"
-            onClick={handleCreateWallet}
-            leftIcon={<FiPlus />}
-          >
-            Add Wallet
-          </Button>
+          <HStack gap={2}>
+            <VisibilityToggle isHidden={isHidden} onToggle={toggleVisibility} />
+            <Button
+              colorPalette="blue"
+              size="lg"
+              onClick={handleCreateWallet}
+              leftIcon={<FiPlus />}
+            >
+              Add Wallet
+            </Button>
+          </HStack>
         </Flex>
 
         {/* Summary Stats */}
@@ -150,7 +168,7 @@ const WalletDashboard = () => {
                         Total {currency}
                       </Text>
                       <Text fontSize="2xl" fontWeight="bold">
-                        {formatCurrency(total, currency)}
+                        {displayCurrency(total, currency)}
                       </Text>
                     </Box>
                     <Icon as={FiTrendingUp} boxSize={8} color="green.500" />
@@ -201,7 +219,7 @@ const WalletDashboard = () => {
                 <HStack justify="space-between">
                   <Text>Total Balance</Text>
                   <Text fontWeight="bold">
-                    {Object.values(summary).reduce((sum, val) => sum + val, 0).toLocaleString('id-ID')}
+                    {displayNumber(Object.values(summary).reduce((sum, val) => sum + val, 0))}
                   </Text>
                 </HStack>
               </VStack>
@@ -224,7 +242,7 @@ const WalletDashboard = () => {
                 wallets={wallets}
                 onEdit={handleEditWallet}
                 onDelete={handleDeleteWallet}
-                formatCurrency={formatCurrency}
+                formatCurrency={displayCurrency}
               />
             )}
           </Card.Body>

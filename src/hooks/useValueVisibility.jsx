@@ -1,4 +1,5 @@
 import { useState, useCallback, createContext, useContext } from 'react';
+/* eslint-disable react-refresh/only-export-components */
 
 // Create context for value visibility
 const ValueVisibilityContext = createContext(null);

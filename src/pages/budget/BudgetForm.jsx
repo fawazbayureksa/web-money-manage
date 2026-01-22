@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Heading,
@@ -33,14 +33,7 @@ export default function BudgetForm() {
     description: ''
   });
 
-  useEffect(() => {
-    fetchCategories();
-    if (isEditMode) {
-      fetchBudget();
-    }
-  }, [id]);
-
-  const fetchBudget = async () => {
+   const fetchBudget = useCallback(async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
 
@@ -66,7 +59,14 @@ export default function BudgetForm() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchCategories();
+    if (isEditMode) {
+      fetchBudget();
+    }
+  }, [isEditMode, fetchBudget]);
 
   const fetchCategories = async () => {
     try {

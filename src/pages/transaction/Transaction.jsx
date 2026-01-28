@@ -11,6 +11,8 @@ import {
   Grid,
   Text,
   Icon,
+  Flex,
+  Badge,
 } from '@chakra-ui/react'
 import axios from 'axios'
 import { toaster } from '../../components/ui/toaster'
@@ -19,7 +21,7 @@ import { SelectComponent } from '../../components/form/SelectComponent'
 import Config from '../../components/axios/Config'
 import { 
   FaMoneyBillWave, 
-  FaLandmark, 
+  FaWallet, 
   FaTag, 
   FaAlignLeft, 
   FaCalendarAlt, 
@@ -28,16 +30,16 @@ import {
 } from 'react-icons/fa'
 
 export default function Transaction() {
-  const [banks, setBanks] = useState([])
+  const [wallets, setWallets] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    BankID: '',
-    CategoryID: '',
-    Amount: '',
-    Description: '',
-    Date: new Date().toISOString().split('T')[0],
-    TransactionType: ''
+    asset_id: '',
+    category_id: '',
+    amount: '',
+    description: '',
+    date: new Date().toISOString().split('T')[0],
+    transaction_type: ''
   })
 
   // Colors
@@ -50,30 +52,41 @@ export default function Transaction() {
   const expenseBg = useColorModeValue('red.50', 'red.900')
 
   useEffect(() => {
-    fetchBanks()
+    fetchWallets()
     fetchCategories()
   }, [])
 
-  const fetchBanks = async () => {
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const fetchWallets = async () => {
+    setLoading(true)
+    const token = localStorage.getItem('token');
     try {
-      let arr = []
-      const token = localStorage.getItem('token');
-      const url = import.meta.env.VITE_API_URL + 'banks?page=1&page_size=100';
-      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }))
-      const banksData = response.data.data?.data || response.data.data || []
-      banksData.map(bank => {
-        arr.push({
-          label: bank.bank_name,
-          value: String(bank.id)
-        })
-      })
-      setBanks(arr)
+      const response = await axios.get(import.meta.env.VITE_API_URL + 'wallets', Config({ Authorization: `Bearer ${token}` }));
+      const walletsData = response.data.data || []
+      const walletOptions = walletsData.map(wallet => ({
+        label: wallet.name,
+        value: String(wallet.id),
+        balance: wallet.balance,
+        bankName: wallet.bank_name,
+        accountNo: wallet.account_no
+      }))
+      setWallets(walletOptions)
     } catch (error) {
-      console.error('Error fetching banks:', error)
+      console.error('Error fetching wallets:', error)
       toaster.create({
-        description: "Failed to fetch banks",
+        description: "Failed to fetch wallets",
         type: "error",
       })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -116,13 +129,13 @@ export default function Transaction() {
   }
 
   const handleTypeSelect = (type) => {
-    setFormData(prev => ({ ...prev, TransactionType: type }))
+    setFormData(prev => ({ ...prev, transaction_type: type }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!formData.Amount || !formData.BankID || !formData.CategoryID || !formData.TransactionType) {
+    if (!formData.amount || !formData.asset_id || !formData.category_id || !formData.transaction_type) {
       toaster.create({
         description: "Please fill in all required fields",
         type: "error",
@@ -132,10 +145,19 @@ export default function Transaction() {
 
     setLoading(true)
     const token = localStorage.getItem('token');
-    const url = import.meta.env.VITE_API_URL + 'transaction';
+    const url = import.meta.env.VITE_API_URL + 'v2/transactions';
 
+    const payload = {
+      description: formData.description,
+      category_id: formData.category_id,
+      asset_id: formData.asset_id,
+      amount: parseInt(formData.amount),
+      transaction_type: formData.transaction_type,
+      date: formData.date
+    }
+    console.log('Submitting transaction with payload:', payload)
     try {
-      const response = await axios.post(url, formData, Config({ 
+      const response = await axios.post(url, payload, Config({ 
         Authorization: `Bearer ${token}`
       }))
       
@@ -146,12 +168,12 @@ export default function Transaction() {
       })
       
       setFormData({
-        BankID: '',
-        CategoryID: '',
-        Amount: '',
-        Description: '',
-        Date: new Date().toISOString().split('T')[0],
-        TransactionType: ''
+        asset_id: '',
+        category_id: '',
+        amount: '',
+        description: '',
+        date: new Date().toISOString().split('T')[0],
+        transaction_type: ''
       })
     } catch (error) {
       console.error(error);
@@ -193,17 +215,17 @@ export default function Transaction() {
                 <Grid templateColumns="1fr 1fr" gap={4} w="full">
                   <Button
                     height="60px"
-                    variant={formData.TransactionType === 1 ? "solid" : "outline"}
-                    bg={formData.TransactionType === 1 ? incomeBg : "transparent"}
-                    borderColor={formData.TransactionType === 1 ? incomeColor : borderColor}
-                    color={formData.TransactionType === 1 ? incomeColor : "gray.500"}
+                    variant={formData.transaction_type === "Income" ? "solid" : "outline"}
+                    bg={formData.transaction_type === "Income" ? incomeBg : "transparent"}
+                    borderColor={formData.transaction_type === "Income" ? incomeColor : borderColor}
+                    color={formData.transaction_type === "Income" ? incomeColor : "gray.500"}
                     _hover={{ 
                       borderColor: incomeColor, 
-                      bg: formData.TransactionType === 1 ? incomeBg : { base: "gray.50", _dark: "whiteAlpha.100" } 
+                      bg: formData.transaction_type === "Income" ? incomeBg : { base: "gray.50", _dark: "whiteAlpha.100" } 
                     }}
-                    onClick={() => handleTypeSelect(1)}
+                    onClick={() => handleTypeSelect("Income")}
                     borderRadius="xl"
-                    borderWidth={formData.TransactionType === 1 ? "2px" : "1px"}
+                    borderWidth={formData.transaction_type === "Income" ? "2px" : "1px"}
                   >
                     <VStack gap={0}>
                       <Icon as={FaArrowDown} fontSize="lg" mb={1} />
@@ -212,17 +234,17 @@ export default function Transaction() {
                   </Button>
                   <Button
                     height="60px"
-                    variant={formData.TransactionType === 2 ? "solid" : "outline"}
-                    bg={formData.TransactionType === 2 ? expenseBg : "transparent"}
-                    borderColor={formData.TransactionType === 2 ? expenseColor : borderColor}
-                    color={formData.TransactionType === 2 ? expenseColor : "gray.500"}
+                    variant={formData.transaction_type === "Expense" ? "solid" : "outline"}
+                    bg={formData.transaction_type === "Expense" ? expenseBg : "transparent"}
+                    borderColor={formData.transaction_type === "Expense" ? expenseColor : borderColor}
+                    color={formData.transaction_type === "Expense" ? expenseColor : "gray.500"}
                     _hover={{ 
                       borderColor: expenseColor, 
-                      bg: formData.TransactionType === 2 ? expenseBg : { base: "gray.50", _dark: "whiteAlpha.100" }
+                      bg: formData.transaction_type === "Expense" ? expenseBg : { base: "gray.50", _dark: "whiteAlpha.100" }
                     }}
-                    onClick={() => handleTypeSelect(2)}
+                    onClick={() => handleTypeSelect("Expense")}
                     borderRadius="xl"
-                    borderWidth={formData.TransactionType === 2 ? "2px" : "1px"}
+                    borderWidth={formData.transaction_type === "Expense" ? "2px" : "1px"}
                   >
                     <VStack gap={0}>
                       <Icon as={FaArrowUp} fontSize="lg" mb={1} />
@@ -240,9 +262,9 @@ export default function Transaction() {
                   </Field.Label>
                   <Input
                     type="number"
-                    name="Amount"
+                    name="amount"
                     placeholder="0"
-                    value={formData.Amount}
+                    value={formData.amount}
                     onChange={handleInputChange}
                     size="xl"
                     fontSize="2xl"
@@ -263,8 +285,8 @@ export default function Transaction() {
                   </Field.Label>
                   <Input
                     type="date"
-                    name="Date"
-                    value={formData.Date}
+                    name="date"
+                    value={formData.date}
                     onChange={handleInputChange}
                     size="lg"
                     borderRadius="xl"
@@ -276,23 +298,36 @@ export default function Transaction() {
                   />
                 </Field.Root>
 
-                {/* Bank and Category Grid */}
+                {/* Wallet and Category Grid */}
                 <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
                   <Field.Root required>
                     <Field.Label display="flex" alignItems="center" gap={2} mb={1.5}>
-                      <Icon as={FaLandmark} color="orange.500" />
-                      Bank
+                      <Icon as={FaWallet} color="orange.500" />
+                      Wallet / Asset
                       <Field.RequiredIndicator />
                     </Field.Label>
                     <SelectComponent 
-                      options={banks}
-                      value={formData.BankID ? [formData.BankID.toString()] : []}
+                      options={wallets}
+                      value={formData.asset_id ? [formData.asset_id.toString()] : []}
                       label=""
-                      placeholder="Select Bank"
-                      onChange={(val) => handleSelectChange('BankID', val)}
+                      placeholder="Select Wallet"
+                      onChange={(val) => handleSelectChange('asset_id', val)}
                       width="100%"
                       size="lg"
                     />
+                    {formData.asset_id && (
+                      <Box mt={2}>
+                        <Text fontSize="xs" color="gray.500">Balance:</Text>
+                        <Flex align="center" gap={2}>
+                          <Text fontSize="sm" fontWeight="bold" color="blue.500">
+                            {formatCurrency(wallets.find(w => parseInt(w.value) === formData.asset_id)?.balance || 0)}
+                          </Text>
+                          <Badge fontSize="xs" colorPalette="blue">
+                            {wallets.find(w => parseInt(w.value) === formData.asset_id)?.bankName}
+                          </Badge>
+                        </Flex>
+                      </Box>
+                    )}
                   </Field.Root>
 
                   <Field.Root required>
@@ -303,10 +338,10 @@ export default function Transaction() {
                     </Field.Label>
                     <SelectComponent 
                       options={categories}
-                      value={formData.CategoryID ? [formData.CategoryID.toString()] : []}
+                      value={formData.category_id ? [formData.category_id.toString()] : []}
                       label=""
                       placeholder="Select Category"
-                      onChange={(val) => handleSelectChange('CategoryID', val)}
+                      onChange={(val) => handleSelectChange('category_id', val)}
                       width="100%"
                       size="lg"
                     />
@@ -320,9 +355,9 @@ export default function Transaction() {
                     Description
                   </Field.Label>
                   <Input
-                    name="Description"
+                    name="description"
                     placeholder="What is this transaction for?"
-                    value={formData.Description}
+                    value={formData.description}
                     onChange={handleInputChange}
                     size="lg"
                     borderRadius="xl"

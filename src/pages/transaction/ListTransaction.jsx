@@ -8,21 +8,24 @@ import {
     Button,
     Flex,
     Stack,
+    VStack,
     Badge,
     Card,
     Input,
     Icon,
+    HStack,
+    Circle,
 } from "@chakra-ui/react";
 import axios from 'axios';
 import Config from '../../components/axios/Config';
 import { toaster } from "../../components/ui/toaster";
 import { useColorModeValue } from '../../components/ui/color-mode';
-import { FiCalendar, FiFilter, FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { FiCalendar, FiFilter, FiArrowUp, FiArrowDown, FiRefreshCw,FiPieChart } from 'react-icons/fi';
 
 export default function ListTransaction() {
     const [transactions, setTransactions] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [banks, setBanks] = useState([]);
+    const [wallets, setWallets] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -37,13 +40,15 @@ export default function ListTransaction() {
     const [endDate, setEndDate] = useState('');
     const [transactionType, setTransactionType] = useState('');
     const [categoryId, setCategoryId] = useState('');
-    const [bankId, setBankId] = useState('');
+    const [assetId, setAssetId] = useState('');
 
     // Colors
     const cardBg = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const incomeColor = useColorModeValue('green.600', 'green.400');
     const expenseColor = useColorModeValue('red.600', 'red.400');
+    const incomeBg = useColorModeValue('green.50', 'green.900');
+    const expenseBg = useColorModeValue('red.50', 'red.900');
     const headerBg = useColorModeValue('gray.50', 'gray.700');
     const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.100');
     const selectBg = useColorModeValue('white', 'gray.700');
@@ -53,11 +58,11 @@ export default function ListTransaction() {
     useEffect(() => {
         fetchTransactions();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, limit, startDate, endDate, transactionType, categoryId, bankId]);
+    }, [page, limit, startDate, endDate, transactionType, categoryId, assetId]);
 
     useEffect(() => {
         fetchCategories();
-        fetchBanks();
+        fetchWallets();
     }, []);
 
     const fetchTransactions = async () => {
@@ -67,16 +72,16 @@ export default function ListTransaction() {
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: limit.toString(),
+                page_size: limit.toString(),
             });
 
             if (startDate) params.append('start_date', startDate);
             if (endDate) params.append('end_date', endDate);
             if (transactionType) params.append('transaction_type', transactionType);
             if (categoryId) params.append('category_id', categoryId);
-            if (bankId) params.append('bank_id', bankId);
+            if (assetId) params.append('asset_id', assetId);
 
-            const url = import.meta.env.VITE_API_URL + `transactions?${params.toString()}`;
+            const url = import.meta.env.VITE_API_URL + `v2/transactions?${params.toString()}`;
             const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
 
             setTransactions(response.data.data || []);
@@ -109,18 +114,19 @@ export default function ListTransaction() {
         }
     };
 
-    const fetchBanks = async () => {
+    const fetchWallets = async () => {
         try {
             const token = localStorage.getItem('token');
-            const url = import.meta.env.VITE_API_URL + 'banks?page=1&page_size=100';
+            const url = import.meta.env.VITE_API_URL + 'wallets';
             const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
-            const banksData = response.data.data?.data || response.data.data || [];
-            setBanks(banksData.map(bank => ({
-                label: bank.bank_name,
-                value: String(bank.id)
+            const walletsData = response.data.data || [];
+            setWallets(walletsData.map(wallet => ({
+                label: wallet.name,
+                value: String(wallet.id),
+                bankName: wallet.asset_name
             })));
         } catch (error) {
-            console.error('Error fetching banks:', error);
+            console.error('Error fetching wallets:', error);
         }
     };
 
@@ -129,7 +135,7 @@ export default function ListTransaction() {
         setEndDate('');
         setTransactionType('');
         setCategoryId('');
-        setBankId('');
+        setAssetId('');
         setPage(1);
     };
 
@@ -139,14 +145,6 @@ export default function ListTransaction() {
             currency: 'IDR',
             minimumFractionDigits: 0,
         }).format(amount);
-    };
-
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('id-ID', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-        });
     };
 
     const selectStyle = {
@@ -164,13 +162,29 @@ export default function ListTransaction() {
             {/* Header */}
             <Flex justify="space-between" align="center" mb={6}>
                 <Box>
-                    <Heading as="h3" size="lg" mb={2}>
+                    <Heading as="h3" size="lg" mb={2} fontWeight="bold">
                         Transaction History
                     </Heading>
-                    <Text color="gray.500" fontSize="sm">
-                        Total: {totalItems} transactions
-                    </Text>
+                    <HStack gap={4}>
+                        <Text color="gray.500" fontSize="sm">
+                            Total: {totalItems} transactions
+                        </Text>
+                        {transactions.length > 0 && (
+                            <Badge colorPalette="blue" variant="subtle" px={2} py={1}>
+                                Page {page} of {totalPages}
+                            </Badge>
+                        )}
+                    </HStack>
                 </Box>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<FiRefreshCw />}
+                    onClick={fetchTransactions}
+                    isLoading={loading}
+                >
+                    Refresh
+                </Button>
             </Flex>
 
             {/* Filters Card */}
@@ -248,18 +262,18 @@ export default function ListTransaction() {
                             ))}
                         </select>
 
-                        {/* Bank */}
+                        {/* Wallet/Asset */}
                         <select
-                            value={bankId}
+                            value={assetId}
                             onChange={(e) => {
-                                setBankId(e.target.value);
+                                setAssetId(e.target.value);
                                 setPage(1);
                             }}
                             style={selectStyle}
                         >
-                            <option value="">All Banks</option>
-                            {banks.map(bank => (
-                                <option key={bank.value} value={bank.value}>{bank.label}</option>
+                            <option value="">All Wallets</option>
+                            {wallets.map(wallet => (
+                                <option key={wallet.value} value={wallet.value}>{wallet.label}</option>
                             ))}
                         </select>
 
@@ -290,7 +304,7 @@ export default function ListTransaction() {
                     </Flex>
 
                     {/* Active Filters */}
-                    {(startDate || endDate || transactionType || categoryId || bankId) && (
+                    {(startDate || endDate || transactionType || categoryId || assetId) && (
                         <Flex gap={2} flexWrap="wrap" align="center">
                             <Text fontSize="sm" fontWeight="medium">Active filters:</Text>
                             {startDate && (
@@ -309,9 +323,9 @@ export default function ListTransaction() {
                                     Category: {categories.find(c => c.value === categoryId)?.label}
                                 </Badge>
                             )}
-                            {bankId && (
+                            {assetId && (
                                 <Badge colorPalette="orange">
-                                    Bank: {banks.find(b => b.value === bankId)?.label}
+                                    Wallet: {wallets.find(w => w.value === assetId)?.label}
                                 </Badge>
                             )}
                         </Flex>
@@ -336,14 +350,14 @@ export default function ListTransaction() {
             {/* Table */}
             {!loading && transactions.length > 0 ? (
                 <>
-                    <Card.Root mb={4} overflow="hidden" bg={cardBg} borderColor={borderColor}>
+                    <Card.Root mb={4} overflow="hidden" bg={cardBg} borderColor={borderColor} shadow="sm">
                         <Table.Root>
                             <Table.Header>
                                 <Table.Row bg={headerBg}>
-                                    <Table.ColumnHeader>Date</Table.ColumnHeader>
+                                    <Table.ColumnHeader width="200px">Date & Time</Table.ColumnHeader>
                                     <Table.ColumnHeader>Description</Table.ColumnHeader>
                                     <Table.ColumnHeader>Category</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Bank</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Wallet / Asset</Table.ColumnHeader>
                                     <Table.ColumnHeader textAlign="right">Amount</Table.ColumnHeader>
                                 </Table.Row>
                             </Table.Header>
@@ -355,38 +369,88 @@ export default function ListTransaction() {
                                         transition="background 0.2s"
                                     >
                                         <Table.Cell>
-                                            <Text fontSize="sm" fontWeight="medium">
-                                                {formatDate(transaction.date)}
-                                            </Text>
+                                            <VStack align="start" gap={0}>
+                                                <Text fontSize="sm" fontWeight="medium">
+                                                    {new Date(transaction.date).toLocaleDateString('id-ID', {
+                                                        year: 'numeric',
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                    })}
+                                                </Text>
+                                                <Text fontSize="xs" color="gray.500">
+                                                    {new Date(transaction.date).toLocaleTimeString('id-ID', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </Text>
+                                            </VStack>
                                         </Table.Cell>
                                         <Table.Cell>
-                                            <Text fontWeight="medium">
+                                            <Text fontWeight="medium" fontSize="sm">
                                                 {transaction.description || '-'}
                                             </Text>
                                         </Table.Cell>
                                         <Table.Cell>
-                                            <Badge colorPalette="gray" variant="subtle">
+                                            <Badge 
+                                                colorPalette="purple" 
+                                                variant="subtle" 
+                                                px={2} 
+                                                py={1}
+                                                borderRadius="md"
+                                            >
                                                 {transaction?.category_name || '-'}
                                             </Badge>
                                         </Table.Cell>
                                         <Table.Cell>
-                                            <Text fontSize="sm" color="gray.600">
-                                                {transaction?.bank_name || '-'}
-                                            </Text>
+                                            <Flex align="center" gap={2}>
+                                                <Circle size="24px" bg="orange.100" color="orange.600">
+                                                    <Icon as={FiPieChart} boxSize={5} />
+                                                </Circle>
+                                                <VStack align="start" gap={0} flex={1}>
+                                                    <Text fontSize="sm" fontWeight="medium">
+                                                        {transaction?.asset_name || '-'}
+                                                    </Text>
+                                                    {/* {transaction?.asset_balance !== undefined && (
+                                                        <Text fontSize="xs" color="gray.500">
+                                                            Balance: {formatCurrency(transaction.asset_balance)}
+                                                        </Text>
+                                                    )} */}
+                                                </VStack>
+                                            </Flex>
                                         </Table.Cell>
                                         <Table.Cell textAlign="right">
-                                            <Flex align="center" justify="flex-end" gap={2}>
-                                                <Icon
-                                                    as={transaction.transaction_type === 1 ? FiArrowDown : FiArrowUp}
-                                                    color={transaction.transaction_type === 1 ? incomeColor : expenseColor}
-                                                />
-                                                <Text
-                                                    fontWeight="bold"
-                                                    color={transaction.transaction_type === 1 ? incomeColor : expenseColor}
+                                            <Flex 
+                                                align="center" 
+                                                justify="flex-end" 
+                                                gap={2}
+                                                bg={transaction.transaction_type === 1 ? incomeBg : expenseBg}
+                                                py={2}
+                                                px={3}
+                                                borderRadius="lg"
+                                            >
+                                                <Circle 
+                                                    size="24px" 
+                                                    bg={transaction.transaction_type === 1 ? 'green.00' : 'red.500'} 
+                                                    color="white"
                                                 >
-                                                    {transaction.transaction_type === 1 ? '+' : '-'}
-                                                    {formatCurrency(transaction.amount)}
-                                                </Text>
+                                                    <Icon 
+                                                        as={transaction.transaction_type === 1 ? FiArrowDown : FiArrowUp} 
+                                                        boxSize={3} 
+                                                    />
+                                                </Circle>
+                                                <VStack align="end" gap={0}>
+                                                    <Text
+                                                        fontSize="lg"
+                                                        fontWeight="bold"
+                                                        color={transaction.transaction_type === 1 ? incomeColor : expenseColor}
+                                                    >
+                                                        {transaction.transaction_type === 1 ? '+' : '-'}
+                                                        {formatCurrency(transaction.amount)}
+                                                    </Text>
+                                                    <Text fontSize="xs" color="gray.500">
+                                                        {transaction.transaction_type === 1 ? 'Income' : 'Expense'}
+                                                    </Text>
+                                                </VStack>
                                             </Flex>
                                         </Table.Cell>
                                     </Table.Row>
@@ -396,16 +460,17 @@ export default function ListTransaction() {
                     </Card.Root>
 
                     {/* Pagination */}
-                    <Flex justify="space-between" align="center" mt={4}>
+                    <Flex justify="space-between" align="center" mt={4} flexWrap="wrap" gap={2}>
                         <Text fontSize="sm" color="gray.600">
-                            Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, totalItems)} of {totalItems} entries
+                            Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, totalItems)} of {totalItems} transactions
                         </Text>
-                        <Flex gap={2}>
+                        <Flex gap={2} flexWrap="wrap">
                             <Button
                                 size="sm"
                                 onClick={() => setPage(1)}
                                 disabled={page === 1}
                                 variant="outline"
+                                borderRadius="lg"
                             >
                                 First
                             </Button>
@@ -414,6 +479,7 @@ export default function ListTransaction() {
                                 onClick={() => setPage(page - 1)}
                                 disabled={page === 1}
                                 variant="outline"
+                                borderRadius="lg"
                             >
                                 Previous
                             </Button>
@@ -436,7 +502,8 @@ export default function ListTransaction() {
                                             onClick={() => setPage(pageNum)}
                                             colorPalette={page === pageNum ? 'blue' : 'gray'}
                                             variant={page === pageNum ? 'solid' : 'outline'}
-                                            color={page === pageNum ? 'blue.500' : undefined}
+                                            borderRadius="lg"
+                                            minW="32px"
                                         >
                                             {pageNum}
                                         </Button>
@@ -448,6 +515,7 @@ export default function ListTransaction() {
                                 onClick={() => setPage(page + 1)}
                                 disabled={page === totalPages}
                                 variant="outline"
+                                borderRadius="lg"
                             >
                                 Next
                             </Button>
@@ -456,6 +524,7 @@ export default function ListTransaction() {
                                 onClick={() => setPage(totalPages)}
                                 disabled={page === totalPages}
                                 variant="outline"
+                                borderRadius="lg"
                             >
                                 Last
                             </Button>
@@ -463,10 +532,24 @@ export default function ListTransaction() {
                     </Flex>
                 </>
             ) : !loading && (
-                <Card.Root p={12} bg={cardBg} borderColor={borderColor}>
-                    <Text textAlign="center" fontSize="lg" color="gray.500">
-                        No transactions found. Try adjusting your filters or add a new transaction.
-                    </Text>
+                <Card.Root p={12} bg={cardBg} borderColor={borderColor} textAlign="center">
+                    <VStack gap={4}>
+                        <Icon as={FiPieChart} boxSize={12} color="gray.300" />
+                        <Box>
+                            <Heading size="md" color="gray.600" mb={2}>
+                                No transactions found
+                            </Heading>
+                            <Text color="gray.500">
+                                Try adjusting your filters or add a new transaction to get started.
+                            </Text>
+                        </Box>
+                        <Button 
+                            colorPalette="blue" 
+                            onClick={() => window.location.href = '/transaction'}
+                        >
+                            Add Transaction
+                        </Button>
+                    </VStack>
                 </Card.Root>
             )}
         </Box>

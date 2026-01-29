@@ -161,6 +161,7 @@ const Sidebar = () => {
       borderRight="1px solid"
       borderColor="gray.200"
       _dark={{ borderColor: 'gray.700' }}
+      overflowY="auto"
     >
       <Link to="/">
         <HStack mb="10" gap={3}>

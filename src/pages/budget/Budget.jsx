@@ -21,6 +21,7 @@ export default function Budget() {
   const navigate = useNavigate();
   const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -30,6 +31,7 @@ export default function Budget() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [filterCategoryId, setFilterCategoryId] = useState('');
+  const [filterAssetId, setFilterAssetId] = useState('');
   const [filterPeriod, setFilterPeriod] = useState('');
   const [filterIsActive, setFilterIsActive] = useState('');
   const [sortBy, setSortBy] = useState('');
@@ -46,6 +48,7 @@ export default function Budget() {
       });
 
       if (filterCategoryId) params.append('category_id', filterCategoryId);
+      if (filterAssetId) params.append('asset_id', filterAssetId);
       if (filterPeriod) params.append('period', filterPeriod);
       if (filterIsActive) params.append('is_active', filterIsActive);
       if (sortBy) {
@@ -69,11 +72,12 @@ export default function Budget() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, filterCategoryId, filterPeriod, filterIsActive, sortBy, sortDir]);
+  }, [page, pageSize, filterCategoryId, filterAssetId, filterPeriod, filterIsActive, sortBy, sortDir]);
 
   useEffect(() => {
     fetchBudgets();
     fetchCategories();
+    fetchAssets();
   }, [fetchBudgets]);
 
   const fetchCategories = async () => {
@@ -89,6 +93,21 @@ export default function Budget() {
       })));
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchAssets = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const url = import.meta.env.VITE_API_URL + 'wallets';
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      const assetsData = response.data.data || [];
+      setAssets(assetsData.map(asset => ({
+        label: asset.name,
+        value: String(asset.id)
+      })));
+    } catch (error) {
+      console.error('Error fetching assets:', error);
     }
   };
 
@@ -126,6 +145,7 @@ export default function Budget() {
 
   const handleClearFilters = () => {
     setFilterCategoryId('');
+    setFilterAssetId('');
     setFilterPeriod('');
     setFilterIsActive('');
     setSortBy('');
@@ -215,6 +235,26 @@ export default function Budget() {
               </select>
 
               <select
+                value={filterAssetId}
+                onChange={(e) => {
+                  setFilterAssetId(e.target.value);
+                  setPage(1);
+                }}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #E2E8F0',
+                  fontSize: '14px',
+                  minWidth: '200px'
+                }}
+              >
+                <option value="">All Assets</option>
+                {assets.map(asset => (
+                  <option key={asset.value} value={asset.value}>{asset.label}</option>
+                ))}
+              </select>
+
+              <select
                 value={filterIsActive}
                 onChange={(e) => {
                   setFilterIsActive(e.target.value);
@@ -263,12 +303,17 @@ export default function Budget() {
             </Flex>
 
             {/* Active Filters */}
-            {(filterCategoryId || filterPeriod || filterIsActive || sortBy) && (
+            {(filterCategoryId || filterAssetId || filterPeriod || filterIsActive || sortBy) && (
               <Flex gap={2} flexWrap="wrap">
                 <Text fontSize="sm" fontWeight="medium">Active filters:</Text>
                 {filterCategoryId && (
                   <Badge colorScheme="blue">
                     Category: {categories.find(c => c.value == filterCategoryId)?.label}
+                  </Badge>
+                )}
+                {filterAssetId && (
+                  <Badge colorScheme="cyan">
+                    Asset: {assets.find(a => a.value == filterAssetId)?.label}
                   </Badge>
                 )}
                 {filterPeriod && (
@@ -306,6 +351,7 @@ export default function Budget() {
                 <Table.Header>
                   <Table.Row bg={{ base: "gray.50", _dark: "transparent" }}>
                     <Table.ColumnHeader>Category</Table.ColumnHeader>
+                    <Table.ColumnHeader>Asset</Table.ColumnHeader>
                     <Table.ColumnHeader>Period</Table.ColumnHeader>
                     <Table.ColumnHeader>Budget Amount</Table.ColumnHeader>
                     <Table.ColumnHeader>Spent</Table.ColumnHeader>
@@ -319,6 +365,13 @@ export default function Budget() {
                     <Table.Row key={budget.id} _hover={{ bg: { base: "gray.50", _dark: "whiteAlpha.100" } }}>
                       <Table.Cell fontWeight="medium">{budget.category_name}</Table.Cell>
                       <Table.Cell>
+                        {budget.asset_name ? (
+                          <Badge colorScheme="cyan">{budget.asset_name}</Badge>
+                        ) : (
+                          <Badge colorScheme="gray">All Assets</Badge>
+                        )}
+                      </Table.Cell>
+                      <Table.Cell>
                         <Badge colorScheme="gray" textTransform="capitalize">
                           {budget.period}
                         </Badge>
@@ -331,8 +384,8 @@ export default function Budget() {
                       </Table.Cell>
                       <Table.Cell>
                         <Box w="150px">
-                          <Progress.Root 
-                            value={budget.percentage_used || 0} 
+                          <Progress.Root
+                            value={budget.percentage_used || 0}
                             size="sm"
                             colorScheme={getProgressColor(budget.percentage_used || 0)}
                           >

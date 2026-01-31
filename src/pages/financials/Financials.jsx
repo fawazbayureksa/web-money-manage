@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Box,
   Heading,
@@ -18,24 +18,35 @@ import Config from '../../components/axios/Config';
 import { toaster } from "./../../components/ui/toaster";
 import { useLocalValueVisibility } from '../../hooks/useValueVisibility';
 import { VisibilityToggle } from '../../components/ui/VisibilityToggle';
+import { useSearchParams } from 'react-router-dom';
 
 export default function Financials() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
   const [spendingByCategory, setSpendingByCategory] = useState([]);
   const [spendingByBank, setSpendingByBank] = useState([]);
   const [monthlyComparison, setMonthlyComparison] = useState([]);
-  const [dateRange, setDateRange] = useState({
-    start_date: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-    end_date: new Date().toISOString().split('T')[0]
+
+  const [inputDateRange, setInputDateRange] = useState({
+    start_date: searchParams.get('start_date') || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+    end_date: searchParams.get('end_date') || new Date().toISOString().split('T')[0]
   });
-  
+
+  const dateRange = useMemo(() => ({
+    start_date: searchParams.get('start_date') || '',
+    end_date: searchParams.get('end_date') || ''
+  }), [searchParams]);
+
   // Value visibility hook
   const { isHidden, toggleVisibility, formatValue } = useLocalValueVisibility();
 
-  const fetchDashboard = useCallback(async (token) => {
+  const fetchDashboard = useCallback(async (token, startDate, endDate) => {
     try {
-      const url = import.meta.env.VITE_API_URL + 'analytics/dashboard';
+      const params = new URLSearchParams();
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+      const url = import.meta.env.VITE_API_URL + `analytics/dashboard?${params.toString()}`;
       const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
       setDashboardData(response.data.data);
     } catch (error) {
@@ -43,48 +54,56 @@ export default function Financials() {
     }
   }, []);
 
-  const fetchSpendingByCategory = useCallback(async (token) => {
+  const fetchSpendingByCategory = useCallback(async (token, startDate, endDate) => {
     try {
-      const params = new URLSearchParams(dateRange);
-      const url = import.meta.env.VITE_API_URL + `analytics/spending-by-category?${params}`;
+      const params = new URLSearchParams();
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+      const url = import.meta.env.VITE_API_URL + `analytics/spending-by-category?${params.toString()}`;
       const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
       setSpendingByCategory(response.data.data || []);
     } catch (error) {
       console.error('Error fetching spending by category:', error);
     }
-  }, [dateRange]);
+  }, []);
 
-  const fetchSpendingByBank = useCallback(async (token) => {
+  const fetchSpendingByBank = useCallback(async (token, startDate, endDate) => {
     try {
-      const params = new URLSearchParams(dateRange);
-      const url = import.meta.env.VITE_API_URL + `analytics/spending-by-bank?${params}`;
+      const params = new URLSearchParams();
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+      const url = import.meta.env.VITE_API_URL + `analytics/spending-by-bank?${params.toString()}`;
       const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
       setSpendingByBank(response.data.data || []);
     } catch (error) {
       console.error('Error fetching spending by bank:', error);
     }
-  }, [dateRange]);
+  }, []);
 
-  const fetchMonthlyComparison = async (token) => {
+  const fetchMonthlyComparison = useCallback(async (token, startDate, endDate) => {
     try {
-      const url = import.meta.env.VITE_API_URL + 'analytics/monthly-comparison?months=6';
+      const params = new URLSearchParams();
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+      if (!startDate && !endDate) params.append('months', '6');
+      const url = import.meta.env.VITE_API_URL + `analytics/monthly-comparison?${params.toString()}`;
       const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
       setMonthlyComparison(response.data.data || []);
     } catch (error) {
       console.error('Error fetching monthly comparison:', error);
     }
-  };
+  }, []);
 
-  const fetchAllAnalytics = useCallback(async () => {
+  const fetchAllAnalytics = useCallback(async (startDate, endDate) => {
     setLoading(true);
     const token = localStorage.getItem('token');
 
     try {
       await Promise.all([
-        fetchDashboard(token),
-        fetchSpendingByCategory(token),
-        fetchSpendingByBank(token),
-        fetchMonthlyComparison(token)
+        fetchDashboard(token, startDate, endDate),
+        fetchSpendingByCategory(token, startDate, endDate),
+        fetchSpendingByBank(token, startDate, endDate),
+        fetchMonthlyComparison(token, startDate, endDate)
       ]);
     } catch (error) {
       console.error('Error fetching analytics:', error);
@@ -95,24 +114,33 @@ export default function Financials() {
     } finally {
       setLoading(false);
     }
-  }, [fetchDashboard, fetchSpendingByCategory, fetchSpendingByBank]);
+  }, [fetchDashboard, fetchSpendingByCategory, fetchSpendingByBank, fetchMonthlyComparison]);
 
   useEffect(() => {
-    fetchAllAnalytics();
-  }, [fetchAllAnalytics]);
+    fetchAllAnalytics(dateRange.start_date, dateRange.end_date);
+  }, [dateRange, fetchAllAnalytics]);
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
-    setDateRange(prev => ({
+    setInputDateRange(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
   const applyDateFilter = () => {
-    const token = localStorage.getItem('token');
-    fetchSpendingByCategory(token);
-    fetchSpendingByBank(token);
+    const newParams = new URLSearchParams(searchParams);
+    if (inputDateRange.start_date) {
+      newParams.set('start_date', inputDateRange.start_date);
+    } else {
+      newParams.delete('start_date');
+    }
+    if (inputDateRange.end_date) {
+      newParams.set('end_date', inputDateRange.end_date);
+    } else {
+      newParams.delete('end_date');
+    }
+    setSearchParams(newParams);
   };
 
   const formatCurrency = (amount) => {
@@ -163,7 +191,7 @@ export default function Financials() {
             <Input
               type="date"
               name="start_date"
-              value={dateRange.start_date}
+              value={inputDateRange.start_date}
               onChange={handleDateChange}
               bg={{ base: 'white', _dark: 'gray.700' }}
               borderColor={{ base: 'gray.300', _dark: 'gray.600' }}
@@ -174,7 +202,7 @@ export default function Financials() {
             <Input
               type="date"
               name="end_date"
-              value={dateRange.end_date}
+              value={inputDateRange.end_date}
               onChange={handleDateChange}
               bg={{ base: 'white', _dark: 'gray.700' }}
               borderColor={{ base: 'gray.300', _dark: 'gray.600' }}
@@ -243,7 +271,7 @@ export default function Financials() {
           <Card.Header>
             <Heading size="md">Spending by Category</Heading>
             <Text fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
-              {dateRange.start_date} to {dateRange.end_date}
+              {inputDateRange.start_date || 'All time'} to {inputDateRange.end_date || 'All time'}
             </Text>
           </Card.Header>
           <Card.Body>
@@ -283,7 +311,7 @@ export default function Financials() {
           <Card.Header>
             <Heading size="md">Spending by Bank</Heading>
             <Text fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
-              {dateRange.start_date} to {dateRange.end_date}
+              {inputDateRange.start_date || 'All time'} to {inputDateRange.end_date || 'All time'}
             </Text>
           </Card.Header>
           <Card.Body>

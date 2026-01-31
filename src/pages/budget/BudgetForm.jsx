@@ -44,10 +44,10 @@ export default function BudgetForm() {
       const budget = response.data.data;
       setFormData({
         category_id: budget.category_id,
-        amount: budget.amount,
+        amount: parseInt(budget.amount) || 0,
         period: budget.period,
         start_date: budget.start_date ? budget.start_date.split('T')[0] : '',
-        alert_at: budget.alert_at,
+        alert_at: parseInt(budget.alert_at) || 80,
         description: budget.description
       });
     } catch (error) {
@@ -87,7 +87,7 @@ export default function BudgetForm() {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: (name === 'amount' || name === 'alert_at') && value !== '' ? parseInt(value) : value
     }));
   };
 
@@ -104,9 +104,16 @@ export default function BudgetForm() {
     const token = localStorage.getItem('token');
     const url = import.meta.env.VITE_API_URL + (isEditMode ? `budgets/${id}` : 'budgets');
 
+    const submitData = {
+      ...formData,
+      amount: parseInt(formData.amount) || 0,
+      alert_at: parseInt(formData.alert_at) || 80,
+      category_id: parseInt(formData.category_id)
+    };
+
     try {
       const method = isEditMode ? 'put' : 'post';
-      await axios[method](url, formData, Config({ Authorization: `Bearer ${token}` }));
+      await axios[method](url, submitData, Config({ Authorization: `Bearer ${token}` }));
 
       toaster.create({
         description: `Budget ${isEditMode ? 'updated' : 'created'} successfully`,

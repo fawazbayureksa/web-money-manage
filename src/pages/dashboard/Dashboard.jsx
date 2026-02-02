@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Box,
   Heading,
@@ -28,6 +28,7 @@ import MonthlyComparisonChart from '../../components/dashboard/MonthlyComparison
 import CategoryDonutChart from '../../components/dashboard/CategoryDonutChart';
 import NetSavingsChart from '../../components/dashboard/NetSavingsChart';
 import { VisibilityToggle } from '../../components/ui/VisibilityToggle';
+import { PayCycleToggle } from '../../components/ui/PayCycleToggle';
 import { useLocalValueVisibility } from '../../hooks/useValueVisibility';
 
 /**
@@ -51,11 +52,56 @@ const Dashboard = () => {
   const [yearlyData, setYearlyData] = useState(null);
   const [loadingMonthly, setLoadingMonthly] = useState(true);
   const [loadingYearly, setLoadingYearly] = useState(true);
+  const [usePayCycle, setUsePayCycle] = useState(false);
+
+  // Handle pay cycle toggle
+  const handlePayCycleToggle = useCallback((isEnabled) => {
+    setUsePayCycle(isEnabled);
+  }, []);
 
   // Colors
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.100', 'gray.700');
   const subtitleColor = useColorModeValue('gray.600', 'gray.400');
+
+  const fetchMonthlyComparison = useCallback(async () => {
+    try {
+      const params = { months: 6 };
+      if (usePayCycle) {
+        params.use_pay_cycle = 'true';
+      }
+      const response = await api.get('analytics/monthly-comparison', { params });
+      setMonthlyData(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching monthly comparison:', error);
+      toaster.create({
+        description: "Failed to fetch monthly comparison",
+        type: "error",
+      });
+    } finally {
+      setLoadingMonthly(false);
+    }
+  }, [usePayCycle]);
+
+  const fetchYearlyReport = useCallback(async () => {
+    try {
+      const currentYear = new Date().getFullYear();
+      const params = { year: currentYear };
+      if (usePayCycle) {
+        params.use_pay_cycle = 'true';
+      }
+      const response = await api.get('analytics/yearly-report', { params });
+      setYearlyData(response.data.data || null);
+    } catch (error) {
+      console.error('Error fetching yearly report:', error);
+      toaster.create({
+        description: "Failed to fetch yearly report",
+        type: "error",
+      });
+    } finally {
+      setLoadingYearly(false);
+    }
+  }, [usePayCycle]);
 
   useEffect(() => {
     // Get user name
@@ -72,38 +118,7 @@ const Dashboard = () => {
     // Fetch data
     fetchMonthlyComparison();
     fetchYearlyReport();
-  }, []);
-
-  const fetchMonthlyComparison = async () => {
-    try {
-      const response = await api.get('analytics/monthly-comparison?months=6');
-      setMonthlyData(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching monthly comparison:', error);
-      toaster.create({
-        description: "Failed to fetch monthly comparison",
-        type: "error",
-      });
-    } finally {
-      setLoadingMonthly(false);
-    }
-  };
-
-  const fetchYearlyReport = async () => {
-    try {
-      const currentYear = new Date().getFullYear();
-      const response = await api.get(`analytics/yearly-report?year=${currentYear}`);
-      setYearlyData(response.data.data || null);
-    } catch (error) {
-      console.error('Error fetching yearly report:', error);
-      toaster.create({
-        description: "Failed to fetch yearly report",
-        type: "error",
-      });
-    } finally {
-      setLoadingYearly(false);
-    }
-  };
+  }, [fetchMonthlyComparison, fetchYearlyReport]);
 
   // Calculate latest changes from monthly data
   const latestIncome = monthlyData[monthlyData.length - 1]?.income || 0;
@@ -141,7 +156,10 @@ const Dashboard = () => {
           <Text color={subtitleColor} fontSize="lg">
             Here's your financial overview
           </Text>
-          <VisibilityToggle isHidden={isHidden} onToggle={toggleVisibility} />
+          <Flex gap={3}>
+            <PayCycleToggle isEnabled={usePayCycle} onToggle={handlePayCycleToggle} />
+            <VisibilityToggle isHidden={isHidden} onToggle={toggleVisibility} />
+          </Flex>
           </Flex>
       </Box>
 

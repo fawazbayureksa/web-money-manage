@@ -11,14 +11,24 @@ import {
   Badge,
   SimpleGrid,
   Input,
-  Button
+  Button,
+  Switch,
+  HStack,
+  Tooltip,
+  VStack,
+  IconButton,
+  useBreakpointValue
 } from "@chakra-ui/react";
 import axios from 'axios';
+import { FiSettings, FiRefreshCw } from 'react-icons/fi';
 import Config from '../../components/axios/Config';
 import { toaster } from "./../../components/ui/toaster";
 import { useLocalValueVisibility } from '../../hooks/useValueVisibility';
+import { useHapticFeedback } from '../../hooks/useHapticFeedback';
 import { VisibilityToggle } from '../../components/ui/VisibilityToggle';
+import { BottomSheet } from '../../components/ui/BottomSheet';
 import { useSearchParams } from 'react-router-dom';
+import { getSettings } from '../../services/userSettings';
 
 export default function Financials() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,6 +37,12 @@ export default function Financials() {
   const [spendingByCategory, setSpendingByCategory] = useState([]);
   const [spendingByBank, setSpendingByBank] = useState([]);
   const [monthlyComparison, setMonthlyComparison] = useState([]);
+  const [usePayCycle, setUsePayCycle] = useState(false);
+  const [userSettings, setUserSettings] = useState(null);
+  const [payCyclePeriods, setPayCyclePeriods] = useState([]);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const [inputDateRange, setInputDateRange] = useState({
     start_date: searchParams.get('start_date') || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
@@ -41,44 +57,50 @@ export default function Financials() {
   // Value visibility hook
   const { isHidden, toggleVisibility, formatValue } = useLocalValueVisibility();
 
+  // Haptic feedback hook
+  const { triggerHaptic } = useHapticFeedback();
+
   const fetchDashboard = useCallback(async (token, startDate, endDate) => {
     try {
       const params = new URLSearchParams();
       if (startDate) params.append('start_date', startDate);
       if (endDate) params.append('end_date', endDate);
+      if (usePayCycle) params.append('use_pay_cycle', 'true');
       const url = import.meta.env.VITE_API_URL + `analytics/dashboard?${params.toString()}`;
       const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
       setDashboardData(response.data.data);
     } catch (error) {
       console.error('Error fetching dashboard:', error);
     }
-  }, []);
+  }, [usePayCycle]);
 
   const fetchSpendingByCategory = useCallback(async (token, startDate, endDate) => {
     try {
       const params = new URLSearchParams();
       if (startDate) params.append('start_date', startDate);
       if (endDate) params.append('end_date', endDate);
+      if (usePayCycle) params.append('use_pay_cycle', 'true');
       const url = import.meta.env.VITE_API_URL + `analytics/spending-by-category?${params.toString()}`;
       const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
       setSpendingByCategory(response.data.data || []);
     } catch (error) {
       console.error('Error fetching spending by category:', error);
     }
-  }, []);
+  }, [usePayCycle]);
 
   const fetchSpendingByBank = useCallback(async (token, startDate, endDate) => {
     try {
       const params = new URLSearchParams();
       if (startDate) params.append('start_date', startDate);
       if (endDate) params.append('end_date', endDate);
+      if (usePayCycle) params.append('use_pay_cycle', 'true');
       const url = import.meta.env.VITE_API_URL + `analytics/spending-by-bank?${params.toString()}`;
       const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
       setSpendingByBank(response.data.data || []);
     } catch (error) {
       console.error('Error fetching spending by bank:', error);
     }
-  }, []);
+  }, [usePayCycle]);
 
   const fetchMonthlyComparison = useCallback(async (token, startDate, endDate) => {
     try {
@@ -86,13 +108,18 @@ export default function Financials() {
       if (startDate) params.append('start_date', startDate);
       if (endDate) params.append('end_date', endDate);
       if (!startDate && !endDate) params.append('months', '6');
+      if (usePayCycle) params.append('use_pay_cycle', 'true');
       const url = import.meta.env.VITE_API_URL + `analytics/monthly-comparison?${params.toString()}`;
       const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
       setMonthlyComparison(response.data.data || []);
+      
+      if (response.data.periods) {
+        setPayCyclePeriods(response.data.periods);
+      }
     } catch (error) {
       console.error('Error fetching monthly comparison:', error);
     }
-  }, []);
+  }, [usePayCycle]);
 
   const fetchAllAnalytics = useCallback(async (startDate, endDate) => {
     setLoading(true);
@@ -114,11 +141,28 @@ export default function Financials() {
     } finally {
       setLoading(false);
     }
-  }, [fetchDashboard, fetchSpendingByCategory, fetchSpendingByBank, fetchMonthlyComparison]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchDashboard, fetchSpendingByCategory, fetchSpendingByBank, fetchMonthlyComparison, usePayCycle]);
 
   useEffect(() => {
     fetchAllAnalytics(dateRange.start_date, dateRange.end_date);
   }, [dateRange, fetchAllAnalytics]);
+
+  useEffect(() => {
+    const fetchUserSettings = async () => {
+      try {
+        const response = await getSettings();
+        if (response.data && response.data.pay_cycle_type && response.data.pay_cycle_type !== 'calendar') {
+          setUserSettings(response.data);
+        }
+      } catch (error) {
+        if (error.response?.status !== 404) {
+          console.error('Error fetching user settings:', error);
+        }
+      }
+    };
+    fetchUserSettings();
+  }, []);
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
@@ -162,6 +206,35 @@ export default function Financials() {
     return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'short' });
   };
 
+  const handleTogglePayCycle = () => {
+    if (!userSettings) {
+      triggerHaptic('medium');
+      toaster.create({
+        description: "Please configure your pay cycle settings first",
+        type: "warning",
+      });
+      return;
+    }
+    triggerHaptic('light');
+    setUsePayCycle(!usePayCycle);
+  };
+
+  const handleOpenSettings = () => {
+    triggerHaptic('light');
+    setIsBottomSheetOpen(true);
+  };
+
+  const handleCloseSettings = () => {
+    triggerHaptic('light');
+    setIsBottomSheetOpen(false);
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
   if (loading) {
     return (
       <Flex justify="center" align="center" minH="400px">
@@ -177,11 +250,69 @@ export default function Financials() {
   return (
     <Box maxW="7xl" mx="auto" px={4} py={8}>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h3" size="lg">
-          Financial Analytics
-        </Heading>
-        <VisibilityToggle isHidden={isHidden} onToggle={toggleVisibility} />
+        <Box>
+          <Heading as="h3" size="lg">
+            Financial Analytics
+          </Heading>
+          {usePayCycle && payCyclePeriods.length > 0 && (
+            <Text fontSize="sm" color="gray.500" mt={1}>
+              Pay Cycle Periods
+            </Text>
+          )}
+        </Box>
+        <HStack gap={4}>
+          {userSettings && !isMobile && (
+            <Tooltip label={`Use your custom pay cycle (${userSettings.pay_cycle_type}) for analytics`}>
+              <HStack gap={2}>
+                <Switch
+                  isChecked={usePayCycle}
+                  onChange={handleTogglePayCycle}
+                  colorScheme="blue"
+                  size="md"
+                />
+                <Text fontSize="sm" fontWeight="medium">Use Pay Cycle</Text>
+              </HStack>
+            </Tooltip>
+          )}
+          {userSettings && isMobile && (
+            <Tooltip label="Pay Cycle Settings">
+              <IconButton
+                icon={<FiSettings />}
+                onClick={handleOpenSettings}
+                variant="ghost"
+                colorScheme="blue"
+                aria-label="Pay Cycle Settings"
+              />
+            </Tooltip>
+          )}
+          <VisibilityToggle isHidden={isHidden} onToggle={toggleVisibility} />
+        </HStack>
       </Flex>
+
+      {usePayCycle && payCyclePeriods.length > 0 && (
+        <Card.Root mb={6} p={4} bg="blue.50" _dark={{ bg: 'blue.900' }}>
+          <Text fontSize="sm" fontWeight="bold" color="blue.700" _dark={{ color: 'blue.200' }} mb={2}>
+            Pay Cycle Periods:
+          </Text>
+          <VStack gap={2} align="stretch">
+            {payCyclePeriods.slice(0, 3).map((period, idx) => (
+              <Flex key={idx} justify="space-between" align="center">
+                <Text fontSize="xs" color="blue.600" _dark={{ color: 'blue.300' }}>
+                  Period {idx + 1}: {formatDate(period.period_start)} - {formatDate(period.period_end)}
+                </Text>
+                <Badge size="sm" colorScheme={period.is_current ? 'green' : 'gray'}>
+                  {period.is_current ? 'Current' : 'Completed'}
+                </Badge>
+              </Flex>
+            ))}
+            {payCyclePeriods.length > 3 && (
+              <Text fontSize="xs" color="blue.600" _dark={{ color: 'blue.300' }} textAlign="center">
+                ... and {payCyclePeriods.length - 3} more periods
+              </Text>
+            )}
+          </VStack>
+        </Card.Root>
+      )}
 
       {/* Date Range Filter */}
       <Card.Root mb={6} p={4} bg={{ base: 'white', _dark: 'gray.800' }}>
@@ -399,9 +530,9 @@ export default function Financials() {
       {/* Monthly Comparison */}
       <Card.Root bg={{ base: 'white', _dark: 'gray.800' }}>
         <Card.Header>
-          <Heading size="md">6-Month Trend</Heading>
+          <Heading size="md">{usePayCycle ? 'Pay Cycle Trend' : '6-Month Trend'}</Heading>
           <Text fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
-            Income vs Expense comparison
+            {usePayCycle ? 'Income vs Expense by pay cycle period' : 'Income vs Expense comparison'}
           </Text>
         </Card.Header>
         <Card.Body>
@@ -410,11 +541,20 @@ export default function Financials() {
               {monthlyComparison.map((month, idx) => (
                 <Box key={idx} p={3} bg={{ base: 'gray.50', _dark: 'gray.700' }} borderRadius="md">
                   <Flex justify="space-between" mb={3}>
-                    <Text fontWeight="bold" fontSize="lg">{formatMonth(month.month)}</Text>
+                    <Text fontWeight="bold" fontSize="lg">
+                      {usePayCycle && month.period_label 
+                        ? month.period_label 
+                        : formatMonth(month.month)}
+                    </Text>
                     <Badge colorScheme={month.net >= 0 ? 'green' : 'red'}>
                       {displayCurrency(month.net)}
                     </Badge>
                   </Flex>
+                  {usePayCycle && month.period_start && month.period_end && (
+                    <Text fontSize="xs" color={{ base: 'gray.500', _dark: 'gray.400' }} mb={3}>
+                      {formatDate(month.period_start)} - {formatDate(month.period_end)}
+                    </Text>
+                  )}
                   <Grid templateColumns="1fr 1fr" gap={3}>
                     <Box>
                       <Text fontSize="sm" color={{ base: 'gray.600', _dark: 'gray.400' }}>Income</Text>
@@ -452,7 +592,14 @@ export default function Financials() {
       {dashboardData?.top_categories && dashboardData.top_categories.length > 0 && (
         <Card.Root mt={6} bg={{ base: 'white', _dark: 'gray.800' }}>
           <Card.Header>
-            <Heading size="md">Top Spending Categories (This Month)</Heading>
+            <Heading size="md">
+              Top Spending Categories ({usePayCycle ? 'This Period' : 'This Month'})
+            </Heading>
+            {usePayCycle && dashboardData.period_start && dashboardData.period_end && (
+              <Text fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
+                {formatDate(dashboardData.period_start)} - {formatDate(dashboardData.period_end)}
+              </Text>
+            )}
           </Card.Header>
           <Card.Body>
             <Stack gap={3}>
@@ -486,6 +633,96 @@ export default function Financials() {
             </Stack>
           </Card.Body>
         </Card.Root>
+      )}
+
+      {/* Bottom Sheet for Mobile Pay Cycle Toggle */}
+      <BottomSheet
+        isOpen={isBottomSheetOpen}
+        onClose={handleCloseSettings}
+        title="Pay Cycle Settings"
+      >
+        <VStack gap={6} align="stretch">
+          <Box>
+            <Text fontWeight="bold" mb={2}>Pay Cycle Type</Text>
+            <Badge colorScheme="blue" size="md">
+              {userSettings?.pay_cycle_type}
+            </Badge>
+          </Box>
+
+          <Box>
+            <Flex justify="space-between" align="center">
+              <Box>
+                <Text fontWeight="bold">Use Pay Cycle for Analytics</Text>
+                <Text fontSize="sm" color="gray.500">
+                  Apply your custom pay cycle to all analytics views
+                </Text>
+              </Box>
+              <Switch
+                isChecked={usePayCycle}
+                onChange={handleTogglePayCycle}
+                colorScheme="blue"
+                size="lg"
+              />
+            </Flex>
+          </Box>
+
+          {usePayCycle && payCyclePeriods.length > 0 && (
+            <Box>
+              <Text fontWeight="bold" mb={2}>Current Period</Text>
+              <VStack gap={2} align="stretch" bg="gray.50" p={4} borderRadius="md">
+                {payCyclePeriods.slice(0, 2).map((period, idx) => (
+                  <Flex key={idx} justify="space-between" align="center">
+                    <Text fontSize="sm">
+                      {formatDate(period.period_start)} - {formatDate(period.period_end)}
+                    </Text>
+                    <Badge colorScheme={period.is_current ? 'green' : 'gray'} size="sm">
+                      {period.is_current ? 'Current' : 'Previous'}
+                    </Badge>
+                  </Flex>
+                ))}
+              </VStack>
+            </Box>
+          )}
+
+          <Button
+            onClick={handleCloseSettings}
+            bg="blue.500"
+            color="white"
+            _hover={{ bg: 'blue.600' }}
+            width="full"
+          >
+            Close
+          </Button>
+
+          <Button
+            as="a"
+            href="/settings/pay-cycle"
+            variant="outline"
+            width="full"
+            leftIcon={<FiRefreshCw />}
+          >
+            Configure Pay Cycle
+          </Button>
+        </VStack>
+      </BottomSheet>
+
+      {/* Floating Action Button for Mobile */}
+      {isMobile && userSettings && (
+        <IconButton
+          icon={<FiSettings />}
+          onClick={handleOpenSettings}
+          position="fixed"
+          bottom={6}
+          right={6}
+          size="lg"
+          borderRadius="full"
+          shadow="lg"
+          bg="blue.500"
+          color="white"
+          _hover={{ bg: 'blue.600' }}
+          aria-label="Pay Cycle Settings"
+          zIndex="sticky"
+        />
       )}
     </Box>
   );

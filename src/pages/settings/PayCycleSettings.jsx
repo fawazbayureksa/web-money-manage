@@ -97,6 +97,60 @@ const PeriodPreview = ({ settings }) => {
   );
 };
 
+const CurrentSettingsCard = ({ settings }) => {
+  const type = PAY_CYCLE_OPTIONS.find(opt => opt.value === settings.pay_cycle_type);
+  const getCurrentSettingsText = () => {
+    if (settings.pay_cycle_type === 'calendar') {
+      return 'Calendar months';
+    }
+    if (settings.pay_cycle_type === 'last_weekday') {
+      return 'Last weekday of each month';
+    }
+    if (settings.pay_cycle_type === 'custom_day' && settings.pay_day) {
+      const offsetText = settings.cycle_start_offset === 0 
+        ? `${settings.pay_day}${getDaySuffix(settings.pay_day)}`
+        : `${settings.pay_day}${getDaySuffix(settings.pay_day)} + ${settings.cycle_start_offset} day(s)`;
+      return `Custom day: ${offsetText} of each month`;
+    }
+    if (settings.pay_cycle_type === 'bi_weekly' && settings.pay_day !== null) {
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const offsetText = settings.cycle_start_offset === 0 
+        ? dayNames[settings.pay_day]
+        : `${dayNames[settings.pay_day]} + ${settings.cycle_start_offset} day(s)`;
+      return `Bi-weekly: Every 2 weeks starting ${offsetText}`;
+    }
+    return 'Unknown';
+  };
+
+  const getDaySuffix = (day) => {
+    if (day >= 11 && day <= 13) return 'th';
+    const lastDigit = day % 10;
+    if (lastDigit === 1) return 'st';
+    if (lastDigit === 2) return 'nd';
+    if (lastDigit === 3) return 'rd';
+    return 'th';
+  };
+
+  return (
+    <Card.Root bg="green.50" _dark={{ bg: 'green.900' }} p={4} mb={6}>
+      <HStack gap={2}>
+        <Badge colorScheme="green" variant="solid">
+          Active
+        </Badge>
+        <Text fontWeight="bold" color="green.700" _dark={{ color: 'green.200' }}>
+          Current Pay Cycle:
+        </Text>
+      </HStack>
+      <Text mt={2} color="green.600" _dark={{ color: 'green.300' }} fontSize="lg">
+        {getCurrentSettingsText()}
+      </Text>
+      <Text mt={1} fontSize="sm" color="green.500" _dark={{ color: 'green.400' }}>
+        Last updated: {settings.updated_at ? new Date(settings.updated_at).toLocaleDateString() : 'Recently created'}
+      </Text>
+    </Card.Root>
+  );
+};
+
 export default function PayCycleSettings() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -262,6 +316,8 @@ export default function PayCycleSettings() {
           </IconButton>
         )}
       </Flex>
+
+      {settings && <CurrentSettingsCard settings={settings} />}
 
       <Card.Root p={6} bg={{ base: 'white', _dark: 'gray.800' }}>
         <form onSubmit={handleSubmit}>

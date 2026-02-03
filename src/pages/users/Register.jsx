@@ -159,15 +159,18 @@ export default function Register() {
                       />
                       <IconButton
                         aria-label={showPassword ? "Hide password" : "Show password"}
-                        icon={showPassword ? <LuEyeOff /> : <LuEye />}
                         size="sm"
                         variant="ghost"
+                        bg="transparent"
+                        _hover={{ bg: "transparent" }}
                         position="absolute"
                         top="50%"
                         right={2}
                         transform="translateY(-50%)"
                         onClick={() => setShowPassword((prev) => !prev)}
-                      />
+                      >
+                        {showPassword ? <LuEyeOff /> : <LuEye />}
+                      </IconButton>
                     </Box>
                   </Box>
 

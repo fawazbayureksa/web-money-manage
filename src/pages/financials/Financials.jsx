@@ -12,7 +12,7 @@ import {
   SimpleGrid,
   Input,
   Button,
-  Switch,
+  Switch as ChakraSwitch,
   HStack,
   Tooltip,
   VStack,
@@ -260,30 +260,55 @@ export default function Financials() {
           )}
         </Box>
         <HStack gap={4}>
-          {userSettings && !isMobile && (
-            <Tooltip label={`Use your custom pay cycle (${userSettings.pay_cycle_type}) for analytics`}>
-              <HStack gap={2}>
-                <Switch
-                  isChecked={usePayCycle}
-                  onChange={handleTogglePayCycle}
-                  colorScheme="blue"
-                  size="md"
-                />
-                <Text fontSize="sm" fontWeight="medium">Use Pay Cycle</Text>
-              </HStack>
-            </Tooltip>
-          )}
+            {userSettings && !isMobile && (
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <HStack gap={2}>
+                    <ChakraSwitch.Root
+                      checked={usePayCycle}
+                      onCheckedChange={(details) =>
+                        handleTogglePayCycle(details.checked)
+                      }
+                      colorPalette="blue"
+                      size="md"
+                    >
+                      <ChakraSwitch.HiddenInput />
+                      <ChakraSwitch.Control>
+                        <ChakraSwitch.Thumb />
+                      </ChakraSwitch.Control>
+                    </ChakraSwitch.Root>
+
+                    <Text fontSize="sm" fontWeight="medium">
+                      Use Pay Cycle
+                    </Text>
+                  </HStack>
+                </Tooltip.Trigger>
+
+                <Tooltip.Content>
+                  Use your custom pay cycle ({userSettings.pay_cycle_type}) for analytics
+                </Tooltip.Content>
+              </Tooltip.Root>
+            )}
           {userSettings && isMobile && (
-            <Tooltip label="Pay Cycle Settings">
-              <IconButton
-                icon={<FiSettings />}
-                onClick={handleOpenSettings}
-                variant="ghost"
-                colorScheme="blue"
-                aria-label="Pay Cycle Settings"
-              />
-            </Tooltip>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <IconButton
+                  size="sm"
+                  variant="ghost"
+                  colorPalette="blue"
+                  aria-label="Pay Cycle Settings"
+                  onClick={handleOpenSettings}
+                >
+                  <FiSettings />
+                </IconButton>
+              </Tooltip.Trigger>
+
+              <Tooltip.Content>
+                Pay Cycle Settings
+              </Tooltip.Content>
+            </Tooltip.Root>
           )}
+
           <VisibilityToggle isHidden={isHidden} onToggle={toggleVisibility} />
         </HStack>
       </Flex>
@@ -662,12 +687,17 @@ export default function Financials() {
                   Apply your custom pay cycle to all analytics views
                 </Text>
               </Box>
-              <Switch
-                isChecked={usePayCycle}
-                onChange={handleTogglePayCycle}
-                colorScheme="blue"
+              <ChakraSwitch.Root
+                checked={usePayCycle}
+                onCheckedChange={(details) => handleTogglePayCycle()}
+                colorPalette="blue"
                 size="lg"
-              />
+              >
+                <ChakraSwitch.HiddenInput />
+                <ChakraSwitch.Control>
+                  <ChakraSwitch.Thumb />
+                </ChakraSwitch.Control>
+              </ChakraSwitch.Root>
             </Flex>
           </Box>
 
@@ -714,7 +744,6 @@ export default function Financials() {
       {/* Floating Action Button for Mobile */}
       {isMobile && userSettings && (
         <IconButton
-          icon={<FiSettings />}
           onClick={handleOpenSettings}
           position="fixed"
           bottom={6}
@@ -727,7 +756,9 @@ export default function Financials() {
           _hover={{ bg: 'blue.600' }}
           aria-label="Pay Cycle Settings"
           zIndex="sticky"
-        />
+        >
+          <FiSettings />
+        </IconButton>
       )}
     </Box>
   );

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Heading,
@@ -27,6 +28,7 @@ import { useColorModeValue } from '../../components/ui/color-mode';
 import { FiCalendar, FiFilter, FiArrowUp, FiArrowDown, FiRefreshCw, FiPieChart, FiSearch, FiDownload, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
 
 export default function ListTransaction() {
+    const navigate = useNavigate();
     const [transactions, setTransactions] = useState([]);
     const [categories, setCategories] = useState([]);
     const [wallets, setWallets] = useState([]);
@@ -57,8 +59,14 @@ export default function ListTransaction() {
     const selectBg = useColorModeValue('white', 'gray.700');
     const selectColor = useColorModeValue('gray.800', 'white');
     const selectBorderColor = useColorModeValue('#E2E8F0', '#4A5568');
+    // Calendar icon filter - makes calendar picker visible in dark mode
     const calendarIconFilter = useColorModeValue("none", "invert(1)");
     const netBalanceBg = useColorModeValue('blue.50', 'blue.900');
+
+    // Helper function to navigate to add transaction page
+    const navigateToAddTransaction = () => {
+        navigate('/transaction');
+    };
 
     useEffect(() => {
         fetchTransactions();
@@ -163,8 +171,11 @@ export default function ListTransaction() {
 
     const setDateThisWeek = () => {
         const today = new Date();
-        const firstDay = new Date(today.setDate(today.getDate() - today.getDay()));
-        const lastDay = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+        const dayOfWeek = today.getDay();
+        const firstDay = new Date(today);
+        firstDay.setDate(today.getDate() - dayOfWeek);
+        const lastDay = new Date(today);
+        lastDay.setDate(today.getDate() - dayOfWeek + 6);
         setStartDate(firstDay.toISOString().split('T')[0]);
         setEndDate(lastDay.toISOString().split('T')[0]);
         setPage(1);
@@ -256,7 +267,7 @@ export default function ListTransaction() {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.location.href = '/transaction'}
+                        onClick={navigateToAddTransaction}
                         colorPalette="blue"
                     >
                         Add Transaction
@@ -740,7 +751,7 @@ export default function ListTransaction() {
                         </Box>
                         <Button 
                             colorPalette="blue" 
-                            onClick={() => window.location.href = '/transaction'}
+                            onClick={navigateToAddTransaction}
                             size="lg"
                             borderRadius="xl"
                         >

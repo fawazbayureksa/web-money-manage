@@ -85,7 +85,7 @@ export default function ListTransaction() {
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
-                page_size: limit.toString(),
+                limit: limit.toString(),
             });
 
             if (startDate) params.append('start_date', startDate);
@@ -96,7 +96,7 @@ export default function ListTransaction() {
 
             const url = import.meta.env.VITE_API_URL + `v2/transactions?${params.toString()}`;
             const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
-
+            console.log('Transactions response:', response.data.data);
             setTransactions(response.data.data || []);
             setTotalPages(response.data.pagination?.total_pages || 1);
             setTotalItems(response.data.pagination?.total_items || 0);
@@ -216,12 +216,12 @@ export default function ListTransaction() {
         return groups;
     }, {});
 
-    // Calculate summary stats
-    const totalIncome = filteredTransactions
+    // Calculate summary stats from all transactions (not filtered by search)
+    const totalIncome = transactions
         .filter(t => t.transaction_type === 1)
         .reduce((sum, t) => sum + t.amount, 0);
     
-    const totalExpense = filteredTransactions
+    const totalExpense = transactions
         .filter(t => t.transaction_type === 2)
         .reduce((sum, t) => sum + t.amount, 0);
 

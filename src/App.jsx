@@ -40,6 +40,7 @@ function Layout() {
 function App() {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -51,6 +52,7 @@ function App() {
       setUser(null);
       setToken(null);
     }
+    setIsLoading(false);
   }, []);
 
   const handleLogout = () => {
@@ -58,6 +60,15 @@ function App() {
     setUser(null);
     setToken(null);
   }
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minH="100vh">
+        <Box>Loading...</Box>
+      </Box>
+    );
+  }
+
   return (
     <Routes>
       {!token ? (

@@ -1,26 +1,33 @@
  import React, { useState } from 'react';
- import {
-   Box,
-   Flex,
-   Stack,
-   Heading,
-   Text,
-   Container,
-   Input,
-   Button,
-   SimpleGrid,
-   Image,
-   AbsoluteCenter,
-   Span,
- } from '@chakra-ui/react';
- import { Toaster, toaster } from "./../../components/ui/toaster"
- import { useColorModeValue } from'./../../components/ui/color-mode';
- import { RiArrowRightCircleLine } from 'react-icons/ri';
- import axios from 'axios';
+import {
+  Box,
+  Flex,
+  Stack,
+  Heading,
+  Text,
+  Container,
+  Input,
+  Button,
+  SimpleGrid,
+  Image,
+  AbsoluteCenter,
+  Span,
+  IconButton,
+} from '@chakra-ui/react';
+import { Toaster, toaster } from "./../../components/ui/toaster"
+import { useColorModeValue } from './../../components/ui/color-mode';
+import { RiArrowRightCircleLine } from 'react-icons/ri';
+import { LuEye, LuEyeOff } from 'react-icons/lu';
+import axios from 'axios';
+
+// Chakra spacing token (16 corresponds to 4rem in the default scale) for the toggle button.
+const PASSWORD_INPUT_PADDING_RIGHT = 16;
+
 export default function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [address, setAddress] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -139,15 +146,32 @@ export default function Register() {
 
                   <Box>
                     <Text mb={2} fontWeight="semibold">Password</Text>
-                    <Input
-                        type="password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        size="lg"
-                        borderRadius="md"
-                        required
-                    />
+                    <Box position="relative">
+                      <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          size="lg"
+                          borderRadius="md"
+                          required
+                          pr={PASSWORD_INPUT_PADDING_RIGHT}
+                      />
+                      <IconButton
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        size="sm"
+                        variant="ghost"
+                        bg="transparent"
+                        _hover={{ bg: "transparent" }}
+                        position="absolute"
+                        top="50%"
+                        right={2}
+                        transform="translateY(-50%)"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? <LuEyeOff /> : <LuEye />}
+                      </IconButton>
+                    </Box>
                   </Box>
 
                   <Box>

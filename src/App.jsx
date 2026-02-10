@@ -4,6 +4,7 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import Dashboard from './pages/dashboard/Dashboard'
 import Users from './pages/users/Users'
 import Settings from './pages/settings/Settings'
+import PayCycleSettings from './pages/settings/PayCycleSettings'
 import Banks from './pages/banks/Banks'
 import Register from './pages/users/Register'
 import Login from './pages/users/Login'
@@ -39,6 +40,7 @@ function Layout() {
 function App() {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -50,6 +52,7 @@ function App() {
       setUser(null);
       setToken(null);
     }
+    setIsLoading(false);
   }, []);
 
   const handleLogout = () => {
@@ -57,6 +60,15 @@ function App() {
     setUser(null);
     setToken(null);
   }
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minH="100vh">
+        <Box>Loading...</Box>
+      </Box>
+    );
+  }
+
   return (
     <Routes>
       {!token ? (
@@ -70,6 +82,7 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="settings/pay-cycle" element={<PayCycleSettings />} />
           <Route path="banks" element={<Banks />} />
           <Route path="wallets" element={<WalletDashboard />} />
           <Route path="wallets/new" element={<WalletForm />} />

@@ -230,7 +230,10 @@ const WalletDashboard = () => {
         {/* Wallet List */}
         <Card.Root bg={cardBg}>
           <Card.Header>
-            <Heading size="md">Your Wallets</Heading>
+            <Flex justify="space-between" align="center">
+              <Heading size="md">Your Wallets</Heading>
+              <VisibilityToggle isHidden={isHidden} onToggle={toggleVisibility} />
+            </Flex>
           </Card.Header>
           <Card.Body>
             {loading ? (

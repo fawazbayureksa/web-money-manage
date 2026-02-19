@@ -8,6 +8,7 @@ import {
   Field,
   Input,
   Flex,
+  HStack,
   Stack,
   Card
 } from "@chakra-ui/react";
@@ -233,20 +234,18 @@ export default function BudgetForm() {
               />
             </Field.Root>
 
-            <Flex gap={3} justify="flex-end" mt={4}>
+            <HStack gap={3} justify="flex-end" mt={4} w="full">
               <Button variant="outline" onClick={() => navigate('/budget')}>
                 Cancel
               </Button>
               <Button 
                 type="submit"
-                isLoading={loading}
-                bg={{ base: 'blue.500', _dark: 'blue.600' }}
-                color="white"
-                _hover={{ bg: { base: 'blue.600', _dark: 'blue.700' } }}
+                loading={loading}
+                colorPalette="blue"
               >
                 {isEditMode ? 'Update' : 'Create'} Budget
               </Button>
-            </Flex>
+            </HStack>
           </Stack>
         </form>
       </Card.Root>

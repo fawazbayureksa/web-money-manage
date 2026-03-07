@@ -578,6 +578,7 @@ export default function ListTransaction() {
                                             }}
                                             transition="all 0.2s"
                                             cursor="pointer"
+                                            onClick={() => navigate(`/transactions/${transaction.id}`)}
                                         >
                                             <Card.Body p={4}>
                                                 <Flex 
@@ -623,6 +624,27 @@ export default function ListTransaction() {
                                                                 >
                                                                     {transaction?.asset_name || '-'}
                                                                 </Badge>
+                                                                {transaction?.tags && transaction.tags.length > 0 && (
+                                                                    <>
+                                                                        {transaction.tags.map((tag) => (
+                                                                            <Badge
+                                                                                key={tag.id}
+                                                                                size="sm"
+                                                                                px={2}
+                                                                                py={1}
+                                                                                borderRadius="md"
+                                                                                style={{
+                                                                                    backgroundColor: tag.color + '20',
+                                                                                    border: `1px solid ${tag.color}60`,
+                                                                                    color: tag.color
+                                                                                }}
+                                                                            >
+                                                                                {tag.icon && <span style={{ marginRight: '4px' }}>{tag.icon}</span>}
+                                                                                {tag.name}
+                                                                            </Badge>
+                                                                        ))}
+                                                                    </>
+                                                                )}
                                                             </HStack>
                                                         </VStack>
                                                     </Flex>

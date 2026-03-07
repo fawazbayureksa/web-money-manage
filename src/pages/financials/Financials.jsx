@@ -36,6 +36,7 @@ export default function Financials() {
   const [dashboardData, setDashboardData] = useState(null);
   const [spendingByCategory, setSpendingByCategory] = useState([]);
   const [spendingByBank, setSpendingByBank] = useState([]);
+  const [spendingByTag, setSpendingByTag] = useState([]);
   const [monthlyComparison, setMonthlyComparison] = useState([]);
   const [usePayCycle, setUsePayCycle] = useState(false);
   const [userSettings, setUserSettings] = useState(null);
@@ -112,7 +113,7 @@ export default function Financials() {
       const url = import.meta.env.VITE_API_URL + `analytics/monthly-comparison?${params.toString()}`;
       const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
       setMonthlyComparison(response.data.data || []);
-      
+
       if (response.data.periods) {
         setPayCyclePeriods(response.data.periods);
       }
@@ -120,6 +121,19 @@ export default function Financials() {
       console.error('Error fetching monthly comparison:', error);
     }
   }, [usePayCycle]);
+
+  const fetchSpendingByTag = useCallback(async (token, startDate, endDate) => {
+    try {
+      const params = new URLSearchParams();
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+      const url = import.meta.env.VITE_API_URL + `v2/analytics/spending-by-tag?${params.toString()}`;
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }));
+      setSpendingByTag(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching spending by tag:', error);
+    }
+  }, []);
 
   const fetchAllAnalytics = useCallback(async (startDate, endDate) => {
     setLoading(true);
@@ -130,7 +144,8 @@ export default function Financials() {
         fetchDashboard(token, startDate, endDate),
         fetchSpendingByCategory(token, startDate, endDate),
         fetchSpendingByAsset(token, startDate, endDate),
-        fetchMonthlyComparison(token, startDate, endDate)
+        fetchMonthlyComparison(token, startDate, endDate),
+        fetchSpendingByTag(token, startDate, endDate)
       ]);
     } catch (error) {
       console.error('Error fetching analytics:', error);
@@ -141,7 +156,7 @@ export default function Financials() {
     } finally {
       setLoading(false);
     }
-  }, [fetchDashboard, fetchSpendingByCategory, fetchSpendingByAsset, fetchMonthlyComparison]);
+  }, [fetchDashboard, fetchSpendingByCategory, fetchSpendingByAsset, fetchMonthlyComparison, fetchSpendingByTag]);
 
   useEffect(() => {
     fetchAllAnalytics(dateRange.start_date, dateRange.end_date);
@@ -205,7 +220,8 @@ export default function Financials() {
     return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'short' });
   };
 
-  const handleTogglePayCycle = () => {
+  const handleTogglePayCycle = (details) => {
+    console.log(details);
     if (!userSettings) {
       triggerHaptic('medium');
       toaster.create({
@@ -508,6 +524,62 @@ export default function Financials() {
         </Card.Root>
       </Grid>
 
+      {/* Spending by Tag */}
+      <Card.Root mb={6} bg={{ base: 'white', _dark: 'gray.800' }}>
+        <Card.Header>
+          <Heading size="md">Spending by Tag</Heading>
+          <Text fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
+            {inputDateRange.start_date || 'All time'} to {inputDateRange.end_date || 'All time'}
+          </Text>
+        </Card.Header>
+        <Card.Body>
+          {spendingByTag.length > 0 ? (
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+              {spendingByTag.map((tag, idx) => (
+                <Box key={idx} p={4} bg={{ base: 'gray.50', _dark: 'gray.700' }} borderRadius="md" border="1px solid" borderColor={{ base: 'gray.200', _dark: 'gray.600' }}>
+                  <Flex align="center" gap={3} mb={3}>
+                    {tag.icon && <Text fontSize="2xl">{tag.icon}</Text>}
+                    <Box flex={1}>
+                      <Text fontWeight="bold" color={{ base: 'gray.800', _dark: 'white' }}>{tag.name}</Text>
+                      <Text fontSize="xs" color="gray.500">{tag.transaction_count} transactions</Text>
+                    </Box>
+                    <Box
+                      w="8"
+                      h="8"
+                      borderRadius="full"
+                      bg={tag.color}
+                      border="2px solid"
+                      borderColor={{ base: 'white', _dark: 'gray.600' }}
+                    />
+                  </Flex>
+                  <VStack gap={2} align="start">
+                    <Flex justify="space-between" w="full">
+                      <Text fontSize="sm" color="gray.500">Total Spending</Text>
+                      <Text fontWeight="bold" fontSize="lg" color={{ base: 'gray.800', _dark: 'white' }}>{displayCurrency(tag.total_spending)}</Text>
+                    </Flex>
+                    <Flex justify="space-between" w="full">
+                      <Text fontSize="sm" color="gray.500">Average</Text>
+                      <Text fontSize="sm" color={{ base: 'gray.700', _dark: 'gray.300' }}>{displayCurrency(tag.average_amount)}</Text>
+                    </Flex>
+                    <Box w="100%" bg={{ base: 'gray.200', _dark: 'gray.600' }} h="6px" borderRadius="full" overflow="hidden">
+                      <Box
+                        bg={tag.color}
+                        h="100%"
+                        w={`${tag.percentage}%`}
+                        transition="width 0.3s"
+                      />
+                    </Box>
+                    <Text fontSize="xs" color="gray.500">{displayPercentage(tag.percentage)} of total spending</Text>
+                  </VStack>
+                </Box>
+              ))}
+            </SimpleGrid>
+          ) : (
+            <Text color={{ base: 'gray.500', _dark: 'gray.400' }} textAlign="center">No tagged transactions yet</Text>
+          )}
+        </Card.Body>
+      </Card.Root>
+
       {/* Budget Summary */}
       {budgetSummary.total_budgets > 0 && (
         <Card.Root mb={6} bg={{ base: 'white', _dark: 'gray.800' }}>
@@ -689,7 +761,7 @@ export default function Financials() {
               </Box>
               <ChakraSwitch.Root
                 checked={usePayCycle}
-                onCheckedChange={(details) => handleTogglePayCycle()}
+                onCheckedChange={(details) => handleTogglePayCycle(details)}
                 colorPalette="blue"
                 size="lg"
               >

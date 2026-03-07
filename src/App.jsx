@@ -14,12 +14,16 @@ import { Toaster } from './components/ui/toaster'
 import Logout from './components/Logout'
 import Transaction from './pages/transaction/Transaction'
 import ListTransaction from './pages/transaction/ListTransaction'
+import TransactionDetail from './pages/transaction/TransactionDetail'
+import EditTransaction from './pages/transaction/EditTransaction'
+import Tags from './pages/tags/Tags'
 import Budget from './pages/budget/Budget'
 import BudgetForm from './pages/budget/BudgetForm'
 import BudgetAlerts from './pages/budget/BudgetAlerts'
 import Financials from './pages/financials/Financials'
 import WalletDashboard from './pages/wallets/WalletDashboard'
 import WalletForm from './pages/wallets/WalletForm'
+import AnalyticsTags from './pages/analytics/AnalyticsTags'
 
 function Layout() {
   return (
@@ -88,8 +92,12 @@ function App() {
           <Route path="wallets/new" element={<WalletForm />} />
           <Route path="wallets/edit/:id" element={<WalletForm />} />
           <Route path="categories" element={<Category />} />
+          <Route path="tags" element={<Tags />} />
           <Route path="transaction" element={<Transaction />} />
+          <Route path="transaction/edit/:id" element={<EditTransaction />} />
           <Route path="transactions" element={<ListTransaction />} />
+          <Route path="transactions/:id" element={<TransactionDetail />} />
+          <Route path="analytics/tags" element={<AnalyticsTags />} />
           <Route path="budget" element={<Budget />} />
           <Route path="budget/new" element={<BudgetForm />} />
           <Route path="budget/edit/:id" element={<BudgetForm />} />

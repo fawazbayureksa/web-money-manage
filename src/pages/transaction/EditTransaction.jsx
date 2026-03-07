@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
   Box,
   Input,
@@ -13,6 +14,7 @@ import {
   Icon,
   Flex,
   Badge,
+  Spinner,
 } from '@chakra-ui/react'
 import axios from 'axios'
 import { toaster } from '../../components/ui/toaster'
@@ -20,27 +22,32 @@ import { useColorModeValue } from '../../components/ui/color-mode'
 import { SelectComponent } from '../../components/form/SelectComponent'
 import { TagSelector } from '../../components/tags/TagSelector'
 import Config from '../../components/axios/Config'
-import { 
-  FaMoneyBillWave, 
-  FaWallet, 
-  FaTag, 
-  FaAlignLeft, 
-  FaCalendarAlt, 
-  FaArrowDown, 
-  FaArrowUp 
+import {
+  FaMoneyBillWave,
+  FaWallet,
+  FaTag,
+  FaAlignLeft,
+  FaCalendarAlt,
+  FaArrowDown,
+  FaArrowUp,
 } from 'react-icons/fa'
+import { FiArrowLeft } from 'react-icons/fi'
 
-export default function Transaction() {
+export default function EditTransaction() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+
   const [wallets, setWallets] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
   const [formData, setFormData] = useState({
     asset_id: '',
     category_id: '',
     amount: '',
     description: '',
     date: new Date().toISOString().split('T')[0],
-    transaction_type: ''
+    transaction_type: '',
   })
   const [selectedTags, setSelectedTags] = useState([])
 
@@ -52,103 +59,116 @@ export default function Transaction() {
   const incomeBg = useColorModeValue('green.50', 'green.900')
   const expenseColor = useColorModeValue('red.500', 'red.400')
   const expenseBg = useColorModeValue('red.50', 'red.900')
+  const calendarFilter = useColorModeValue('none', 'invert(1)')
 
   useEffect(() => {
-    fetchWallets()
-    fetchCategories()
-  }, [])
+    const init = async () => {
+      await Promise.all([fetchWallets(), fetchCategories()])
+      await fetchTransaction()
+    }
+    init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  const fetchTransaction = async () => {
+    setFetching(true)
+    const token = localStorage.getItem('token')
+    try {
+      const url = import.meta.env.VITE_API_URL + `v2/transactions/${id}`
+      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }))
+      const t = response.data.data
+      setFormData({
+        asset_id: t.asset_id || '',
+        category_id: t.category_id || '',
+        amount: String(t.amount || ''),
+        description: t.description || '',
+        date: t.date ? t.date.split('T')[0] : new Date().toISOString().split('T')[0],
+        transaction_type: t.transaction_type === 1 ? 'Income' : 'Expense',
+      })
+      setSelectedTags(t.tags || [])
+    } catch {
+      toaster.create({ description: 'Failed to load transaction', type: 'error' })
+      navigate('/transactions')
+    } finally {
+      setFetching(false)
+    }
+  }
 
   const fetchWallets = async () => {
-    setLoading(true)
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'wallets', Config({ Authorization: `Bearer ${token}` }));
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + 'wallets',
+        Config({ Authorization: `Bearer ${token}` })
+      )
       const walletsData = response.data.data || []
-      const walletOptions = walletsData.map(wallet => ({
-        label: wallet.name,
-        value: String(wallet.id),
-        balance: wallet.balance,
-        bankName: wallet.bank_name,
-        accountNo: wallet.account_no
-      }))
-      setWallets(walletOptions)
-    } catch (error) {
-      console.error('Error fetching wallets:', error)
-      toaster.create({
-        description: "Failed to fetch wallets",
-        type: "error",
-      })
-    } finally {
-      setLoading(false)
+      setWallets(
+        walletsData.map((wallet) => ({
+          label: wallet.name,
+          value: String(wallet.id),
+          balance: wallet.balance,
+          bankName: wallet.bank_name,
+          accountNo: wallet.account_no,
+        }))
+      )
+    } catch {
+      toaster.create({ description: 'Failed to fetch wallets', type: 'error' })
     }
   }
 
   const fetchCategories = async () => {
+    const token = localStorage.getItem('token')
     try {
-      let arr = []
-      const token = localStorage.getItem('token');
-      const url = import.meta.env.VITE_API_URL + 'categories';
-      const response = await axios.get(url, Config({ Authorization: `Bearer ${token}` }))
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + 'categories',
+        Config({ Authorization: `Bearer ${token}` })
+      )
       const categoriesData = response.data.data || []
-      categoriesData.map(category => {
-        arr.push({
+      setCategories(
+        categoriesData.map((category) => ({
           label: category.CategoryName,
-          value: String(category.ID)
-        })
-      })
-      setCategories(arr)
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-      toaster.create({
-        description: "Failed to fetch categories",
-        type: "error",
-      })
+          value: String(category.ID),
+        }))
+      )
+    } catch {
+      toaster.create({ description: 'Failed to fetch categories', type: 'error' })
     }
   }
 
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value)
+
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSelectChange = (field, val) => {
-    setFormData(prevData => ({
-      ...prevData,
-      [field]: val[0] ? parseInt(val[0]) : ''
+    setFormData((prev) => ({
+      ...prev,
+      [field]: val[0] ? parseInt(val[0]) : '',
     }))
   }
 
   const handleTypeSelect = (type) => {
-    setFormData(prev => ({ ...prev, transaction_type: type }))
+    setFormData((prev) => ({ ...prev, transaction_type: type }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
     if (!formData.amount || !formData.asset_id || !formData.category_id || !formData.transaction_type) {
-      toaster.create({
-        description: "Please fill in all required fields",
-        type: "error",
-      })
+      toaster.create({ description: 'Please fill in all required fields', type: 'error' })
       return
     }
 
     setLoading(true)
-    const token = localStorage.getItem('token');
-    const url = import.meta.env.VITE_API_URL + 'v2/transactions';
-
+    const token = localStorage.getItem('token')
+    const url = import.meta.env.VITE_API_URL + `v2/transactions/${id}`
     const payload = {
       description: formData.description,
       category_id: formData.category_id,
@@ -156,80 +176,82 @@ export default function Transaction() {
       amount: parseInt(formData.amount),
       transaction_type: formData.transaction_type,
       date: formData.date,
-      tag_ids: selectedTags.map(tag => tag.id)
+      tag_ids: selectedTags.map((tag) => tag.id),
     }
-    console.log('Submitting transaction with payload:', payload)
+
     try {
-      const response = await axios.post(url, payload, Config({ 
-        Authorization: `Bearer ${token}`
-      }))
-      
-      console.log('Transaction response:', response.data)
-      toaster.create({
-        description: "Transaction recorded successfully",
-        type: "success",
-      })
-      
-      setFormData({
-        asset_id: '',
-        category_id: '',
-        amount: '',
-        description: '',
-        date: new Date().toISOString().split('T')[0],
-        transaction_type: ''
-      })
-      setSelectedTags([])
-    } catch (error) {
-      console.error(error);
-      toaster.create({
-        description: "Failed to record transaction",
-        type: "error",
-      })
+      await axios.put(url, payload, Config({ Authorization: `Bearer ${token}` }))
+      toaster.create({ description: 'Transaction updated successfully', type: 'success' })
+      navigate(`/transactions/${id}`)
+    } catch {
+      toaster.create({ description: 'Failed to update transaction', type: 'error' })
     } finally {
       setLoading(false)
     }
+  }
+
+  if (fetching) {
+    return (
+      <Flex justify="center" align="center" minH="60vh">
+        <Spinner size="xl" color="blue.500" />
+      </Flex>
+    )
   }
 
   return (
     <Box minH="calc(100vh - 80px)" bg={bgColor} py={{ base: 4, md: 8 }} px={{ base: 4, md: 8 }}>
       <Container maxW="2xl" p={0}>
         <VStack gap={6} align="stretch">
-          
+          {/* Header */}
+          <Flex align="center" gap={3}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`/transactions/${id}`)}
+              borderRadius="lg"
+            >
+              <Icon as={FiArrowLeft} mr={2} />
+              Back
+            </Button>
+          </Flex>
+
           <Box textAlign="center" mb={2}>
             <Heading size="2xl" fontWeight="bold" letterSpacing="tight">
-              New Transaction
+              Edit Transaction
             </Heading>
             <Text color="gray.500" fontSize="lg" mt={2}>
-              Track your financial activity
+              Update your transaction details
             </Text>
           </Box>
 
-          <Card.Root 
-            bg={cardBg} 
-            boxShadow="lg" 
-            borderRadius="2xl" 
-            border="1px solid" 
+          <Card.Root
+            bg={cardBg}
+            boxShadow="lg"
+            borderRadius="2xl"
+            border="1px solid"
             borderColor={borderColor}
             overflow="hidden"
           >
             <Card.Body p={{ base: 6, md: 8 }}>
               <VStack gap={6}>
-                
+
                 {/* Transaction Type Toggle */}
                 <Grid templateColumns="1fr 1fr" gap={4} w="full">
                   <Button
                     height="60px"
-                    variant={formData.transaction_type === "Income" ? "solid" : "outline"}
-                    bg={formData.transaction_type === "Income" ? incomeBg : "transparent"}
-                    borderColor={formData.transaction_type === "Income" ? incomeColor : borderColor}
-                    color={formData.transaction_type === "Income" ? incomeColor : "gray.500"}
-                    _hover={{ 
-                      borderColor: incomeColor, 
-                      bg: formData.transaction_type === "Income" ? incomeBg : { base: "gray.50", _dark: "whiteAlpha.100" } 
+                    variant={formData.transaction_type === 'Income' ? 'solid' : 'outline'}
+                    bg={formData.transaction_type === 'Income' ? incomeBg : 'transparent'}
+                    borderColor={formData.transaction_type === 'Income' ? incomeColor : borderColor}
+                    color={formData.transaction_type === 'Income' ? incomeColor : 'gray.500'}
+                    _hover={{
+                      borderColor: incomeColor,
+                      bg: formData.transaction_type === 'Income'
+                        ? incomeBg
+                        : { base: 'gray.50', _dark: 'whiteAlpha.100' },
                     }}
-                    onClick={() => handleTypeSelect("Income")}
+                    onClick={() => handleTypeSelect('Income')}
                     borderRadius="xl"
-                    borderWidth={formData.transaction_type === "Income" ? "2px" : "1px"}
+                    borderWidth={formData.transaction_type === 'Income' ? '2px' : '1px'}
                   >
                     <VStack gap={0}>
                       <Icon as={FaArrowDown} fontSize="lg" mb={1} />
@@ -238,17 +260,19 @@ export default function Transaction() {
                   </Button>
                   <Button
                     height="60px"
-                    variant={formData.transaction_type === "Expense" ? "solid" : "outline"}
-                    bg={formData.transaction_type === "Expense" ? expenseBg : "transparent"}
-                    borderColor={formData.transaction_type === "Expense" ? expenseColor : borderColor}
-                    color={formData.transaction_type === "Expense" ? expenseColor : "gray.500"}
-                    _hover={{ 
-                      borderColor: expenseColor, 
-                      bg: formData.transaction_type === "Expense" ? expenseBg : { base: "gray.50", _dark: "whiteAlpha.100" }
+                    variant={formData.transaction_type === 'Expense' ? 'solid' : 'outline'}
+                    bg={formData.transaction_type === 'Expense' ? expenseBg : 'transparent'}
+                    borderColor={formData.transaction_type === 'Expense' ? expenseColor : borderColor}
+                    color={formData.transaction_type === 'Expense' ? expenseColor : 'gray.500'}
+                    _hover={{
+                      borderColor: expenseColor,
+                      bg: formData.transaction_type === 'Expense'
+                        ? expenseBg
+                        : { base: 'gray.50', _dark: 'whiteAlpha.100' },
                     }}
-                    onClick={() => handleTypeSelect("Expense")}
+                    onClick={() => handleTypeSelect('Expense')}
                     borderRadius="xl"
-                    borderWidth={formData.transaction_type === "Expense" ? "2px" : "1px"}
+                    borderWidth={formData.transaction_type === 'Expense' ? '2px' : '1px'}
                   >
                     <VStack gap={0}>
                       <Icon as={FaArrowUp} fontSize="lg" mb={1} />
@@ -257,7 +281,7 @@ export default function Transaction() {
                   </Button>
                 </Grid>
 
-                {/* Amount Input */}
+                {/* Amount */}
                 <Field.Root required>
                   <Field.Label display="flex" alignItems="center" gap={2}>
                     <Icon as={FaMoneyBillWave} color="blue.500" />
@@ -276,11 +300,11 @@ export default function Transaction() {
                     textAlign="center"
                     py={6}
                     borderRadius="xl"
-                    _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)" }}
+                    _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)' }}
                   />
                 </Field.Root>
 
-                {/* Date Input */}
+                {/* Date */}
                 <Field.Root required>
                   <Field.Label display="flex" alignItems="center" gap={2}>
                     <Icon as={FaCalendarAlt} color="purple.500" />
@@ -295,22 +319,22 @@ export default function Transaction() {
                     size="lg"
                     borderRadius="xl"
                     css={{
-                        "&::-webkit-calendar-picker-indicator": {
-                          filter: useColorModeValue("none", "invert(1)")
-                        }
+                      '&::-webkit-calendar-picker-indicator': {
+                        filter: calendarFilter,
+                      },
                     }}
                   />
                 </Field.Root>
 
-                {/* Wallet and Category Grid */}
-                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
+                {/* Wallet and Category */}
+                <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6} w="full">
                   <Field.Root required>
                     <Field.Label display="flex" alignItems="center" gap={2} mb={1.5}>
                       <Icon as={FaWallet} color="orange.500" />
                       Wallet / Asset
                       <Field.RequiredIndicator />
                     </Field.Label>
-                    <SelectComponent 
+                    <SelectComponent
                       options={wallets}
                       value={formData.asset_id ? [formData.asset_id.toString()] : []}
                       label=""
@@ -324,10 +348,10 @@ export default function Transaction() {
                         <Text fontSize="xs" color="gray.500">Balance:</Text>
                         <Flex align="center" gap={2}>
                           <Text fontSize="sm" fontWeight="bold" color="blue.500">
-                            {formatCurrency(wallets.find(w => parseInt(w.value) === formData.asset_id)?.balance || 0)}
+                            {formatCurrency(wallets.find((w) => parseInt(w.value) === formData.asset_id)?.balance || 0)}
                           </Text>
                           <Badge fontSize="xs" colorPalette="blue">
-                            {wallets.find(w => parseInt(w.value) === formData.asset_id)?.bankName}
+                            {wallets.find((w) => parseInt(w.value) === formData.asset_id)?.bankName}
                           </Badge>
                         </Flex>
                       </Box>
@@ -335,12 +359,12 @@ export default function Transaction() {
                   </Field.Root>
 
                   <Field.Root required>
-                     <Field.Label display="flex" alignItems="center" gap={2} mb={1.5}>
+                    <Field.Label display="flex" alignItems="center" gap={2} mb={1.5}>
                       <Icon as={FaTag} color="pink.500" />
                       Category
                       <Field.RequiredIndicator />
                     </Field.Label>
-                    <SelectComponent 
+                    <SelectComponent
                       options={categories}
                       value={formData.category_id ? [formData.category_id.toString()] : []}
                       label=""
@@ -382,10 +406,10 @@ export default function Transaction() {
                   />
                 </Field.Root>
 
-                {/* Submit Button */}
-                <Button 
-                  onClick={handleSubmit} 
-                  type="submit" 
+                {/* Submit */}
+                <Button
+                  onClick={handleSubmit}
+                  type="submit"
                   size="xl"
                   w="full"
                   mt={4}
@@ -394,16 +418,15 @@ export default function Transaction() {
                   fontSize="lg"
                   borderRadius="xl"
                   loading={loading}
-                  _hover={{ 
+                  _hover={{
                     bg: { base: 'blue.700', _dark: 'blue.600' },
-                    transform: "translateY(-2px)",
-                    boxShadow: "lg"
+                    transform: 'translateY(-2px)',
+                    boxShadow: 'lg',
                   }}
                   transition="all 0.2s"
                 >
-                  Save Transaction
+                  Save Changes
                 </Button>
-
               </VStack>
             </Card.Body>
           </Card.Root>

@@ -3,12 +3,8 @@ import {
   Box,
   Heading,
   Spinner,
-  Table,
   Text,
   Button,
-  Dialog,
-  Portal,
-  CloseButton,
   Field,
   Input,
   Flex,
@@ -24,6 +20,7 @@ import { useColorModeValue } from "../../components/ui/color-mode";
 import axios from "axios";
 import Config from "../../components/axios/Config";
 import { FiTag, FiPlus, FiTrash2, FiEdit2 } from "react-icons/fi";
+import { BaseTable } from '../../components/BaseTable';
 
 const EMOJI_OPTIONS = [
   "🏷️",
@@ -263,87 +260,80 @@ export default function Tags() {
             <Spinner size="xl" color="blue.500" />
           </Flex>
         ) : tags.length > 0 ? (
-          <Table.Root
-            bg={cardBg}
-            borderRadius="2xl"
-            border="1px solid"
-            borderColor={borderColor}
-            overflow="hidden"
-          >
-            <Table.Header>
-              <Table.Row bg={{ base: "gray.50", _dark: "gray.900" }}>
-                <Table.ColumnHeader>Tag</Table.ColumnHeader>
-                <Table.ColumnHeader>Color</Table.ColumnHeader>
-                <Table.ColumnHeader>Usage</Table.ColumnHeader>
-                <Table.ColumnHeader textAlign="end">Actions</Table.ColumnHeader>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {tags.map((tag) => (
-                <Table.Row
-                  key={tag.id}
-                  borderBottom="1px solid"
-                  borderBottomColor={borderColor}
-                >
-                  <Table.Cell>
-                    <HStack gap={2}>
-                      {tag.icon && <Text fontSize="lg">{tag.icon}</Text>}
-                      <Text fontWeight="medium">{tag.name}</Text>
-                    </HStack>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Flex align="center" gap={2}>
-                      <Box
-                        w="6"
-                        h="6"
-                        borderRadius="full"
-                        bg={tag.color}
-                        border="2px solid"
-                        borderColor={borderColor}
-                      />
-                      <Text fontSize="sm" color="gray.500">
-                        {tag.color}
-                      </Text>
-                    </Flex>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Badge
+          <BaseTable
+            keyField="id"
+            data={tags}
+            columns={[
+              {
+                header: 'Tag',
+                render: (tag) => (
+                  <HStack gap={2}>
+                    {tag.icon && <Text fontSize="lg">{tag.icon}</Text>}
+                    <Text fontWeight="medium">{tag.name}</Text>
+                  </HStack>
+                )
+              },
+              {
+                header: 'Color',
+                render: (tag) => (
+                  <Flex align="center" gap={2}>
+                    <Box
+                      w="6"
+                      h="6"
+                      borderRadius="full"
+                      bg={tag.color}
+                      border="2px solid"
+                      borderColor={borderColor}
+                    />
+                    <Text fontSize="sm" color="gray.500">
+                      {tag.color}
+                    </Text>
+                  </Flex>
+                )
+              },
+              {
+                header: 'Usage',
+                render: (tag) => (
+                  <Badge
+                    colorPalette="blue"
+                    variant="subtle"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                    fontSize="sm"
+                  >
+                    {tag.usage_count || 0} uses
+                  </Badge>
+                )
+              },
+              {
+                header: 'Actions',
+                textAlign: 'end',
+                render: (tag) => (
+                  <HStack gap={2} justify="flex-end">
+                    <IconButton
+                      variant="ghost"
                       colorPalette="blue"
-                      variant="subtle"
-                      px={2}
-                      py={1}
-                      borderRadius="md"
-                      fontSize="sm"
+                      size="sm"
+                      onClick={() => handleEdit(tag)}
+                      aria-label="Edit tag"
                     >
-                      {tag.usage_count || 0} uses
-                    </Badge>
-                  </Table.Cell>
-                  <Table.Cell textAlign="end">
-                    <HStack gap={2} justify="flex-end">
-                      <IconButton
-                        variant="ghost"
-                        colorPalette="blue"
-                        size="sm"
-                        onClick={() => handleEdit(tag)}
-                        aria-label="Edit tag"
-                      >
-                        <FiEdit2 />
-                      </IconButton>
-                      <IconButton
-                        variant="ghost"
-                        colorPalette="red"
-                        size="sm"
-                        onClick={() => handleDelete(tag)}
-                        aria-label="Delete tag"
-                      >
-                        <FiTrash2 />
-                      </IconButton>
-                    </HStack>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table.Root>
+                      <FiEdit2 />
+                    </IconButton>
+                    <IconButton
+                      variant="ghost"
+                      colorPalette="red"
+                      size="sm"
+                      onClick={() => handleDelete(tag)}
+                      aria-label="Delete tag"
+                    >
+                      <FiTrash2 />
+                    </IconButton>
+                  </HStack>
+                )
+              }
+            ]}
+          />
         ) : (
           <Box
             bg={cardBg}

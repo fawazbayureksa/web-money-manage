@@ -78,6 +78,7 @@ export default function BaseModal({
                   </Button>
                   <Button
                     onClick={onConfirm}
+                    variant={isDestructive ? 'solid' : 'primary'}
                     loading={isLoading}
                     colorPalette={isDestructive ? 'red' : 'blue'}
                     borderRadius="xl"

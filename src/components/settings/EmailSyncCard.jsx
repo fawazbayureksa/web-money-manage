@@ -9,10 +9,10 @@ import {
   Heading,
   HStack,
   Spinner,
-  Table,
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { BaseTable } from '../BaseTable';
 import { FiLink2, FiMail, FiRefreshCw } from 'react-icons/fi';
 import { useEmailSync } from '../../hooks/useEmailSync';
 
@@ -69,6 +69,37 @@ export default function EmailSyncCard() {
     disconnect,
     fetchStatus,
   } = useEmailSync();
+
+  const columns = [
+    {
+      header: 'Date',
+      render: (log) => formatDate(log.email_date),
+    },
+    {
+      header: 'Bank',
+      render: (log) => log.bank_name || '—',
+    },
+    {
+      header: 'Amount',
+      textAlign: 'end',
+      render: (log) => formatAmount(log.amount),
+    },
+    {
+      header: 'Status',
+      render: (log) => <StatusBadge status={log.status} />,
+    },
+    {
+      header: 'Description',
+      cellProps: {
+        color: 'gray.600',
+        maxW: '320px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      },
+      render: (log) => log.error_message || log.subject || '—',
+    },
+  ];
 
   return (
     <Card.Root borderWidth="1px" borderColor="gray.200" bg={{ base: 'white', _dark: 'gray.800' }}>
@@ -158,32 +189,11 @@ export default function EmailSyncCard() {
           {logs.length > 0 && (
             <Box overflowX="auto">
               <Text mb={2} fontWeight="semibold" fontSize="sm">Sync Logs ({total})</Text>
-              <Table.Root size="sm" variant="line">
-                <Table.Header>
-                  <Table.Row>
-                    <Table.ColumnHeader>Date</Table.ColumnHeader>
-                    <Table.ColumnHeader>Bank</Table.ColumnHeader>
-                    <Table.ColumnHeader textAlign="end">Amount</Table.ColumnHeader>
-                    <Table.ColumnHeader>Status</Table.ColumnHeader>
-                    <Table.ColumnHeader>Description</Table.ColumnHeader>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {logs.map((log) => (
-                    <Table.Row key={log.id}>
-                      <Table.Cell>{formatDate(log.email_date)}</Table.Cell>
-                      <Table.Cell>{log.bank_name || '—'}</Table.Cell>
-                      <Table.Cell textAlign="end">{formatAmount(log.amount)}</Table.Cell>
-                      <Table.Cell>
-                        <StatusBadge status={log.status} />
-                      </Table.Cell>
-                      <Table.Cell color="gray.600" maxW="320px" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
-                        {log.error_message || log.subject || '—'}
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
+              <BaseTable
+                keyField="id"
+                data={logs}
+                columns={columns}
+              />
             </Box>
           )}
         </VStack>

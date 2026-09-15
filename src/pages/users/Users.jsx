@@ -3,7 +3,6 @@ import {
   Box,
   Heading,
   Spinner,
-  Table,
   Text,
   Button,
   Dialog,
@@ -22,6 +21,7 @@ import axios from 'axios';
 import BaseModal from "../../components/BaseModal";
 import { toaster } from "./../../components/ui/toaster";
 import { FiSearch, FiEdit2, FiTrash2, FiChevronUp, FiChevronDown, FiX, FiUser } from 'react-icons/fi';
+import { BaseTable } from '../../components/BaseTable';
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -323,109 +323,103 @@ export default function Users() {
         <>
           <Card.Root border="none" shadow="sm" rounded="2xl" overflow="hidden" bg={{ base: 'white', _dark: 'gray.800' }} mb={6}>
             <Box overflowX="auto">
-              <Table.Root variant="line">
-                <Table.Header bg={{ base: 'gray.50', _dark: 'gray.900' }}>
-                  <Table.Row>
-                    <Table.ColumnHeader 
-                      cursor="pointer" 
-                      onClick={() => handleSort('name')}
-                      py={4} px={6}
-                      _hover={{ bg: { base: 'gray.100', _dark: 'gray.700' } }}
-                      transition="background 0.2s"
-                    >
-                      <Flex align="center" gap={2} fontWeight="bold" textTransform="none" letterSpacing="normal" fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
+              <BaseTable
+                keyField="id"
+                data={users}
+                columns={[
+                  {
+                    header: (
+                      <Flex align="center" gap={2}>
                         User Info <SortIcon field="name" />
                       </Flex>
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader 
-                      cursor="pointer" 
-                      onClick={() => handleSort('email')}
-                      py={4} px={6}
-                      _hover={{ bg: { base: "gray.100", _dark: "gray.700" } }}
-                      transition="background 0.2s"
-                    >
-                      <Flex align="center" gap={2} fontWeight="bold" textTransform="none" letterSpacing="normal" fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
+                    ),
+                    headerProps: {
+                      cursor: "pointer",
+                      onClick: () => handleSort('name'),
+                      _hover: { bg: { base: 'gray.100', _dark: 'gray.700' } },
+                      transition: "background 0.2s"
+                    },
+                    render: (user) => (
+                      <Flex align="center" gap={4}>
+                        <Flex 
+                          w={10} h={10} rounded="full" 
+                          bg={user.is_admin ? { base: "purple.100", _dark: "purple.900/40" } : { base: "blue.100", _dark: "blue.900/40" }} 
+                          color={user.is_admin ? { base: "purple.600", _dark: "purple.300" } : { base: "blue.600", _dark: "blue.300" }}
+                          justify="center" align="center"
+                          fontWeight="bold" fontSize="sm"
+                          shadow="sm"
+                        >
+                          {getInitials(user.name)}
+                        </Flex>
+                        <Text fontWeight="semibold" color={{ base: 'gray.900', _dark: 'white' }}>
+                          {user.name}
+                        </Text>
+                      </Flex>
+                    )
+                  },
+                  {
+                    header: (
+                      <Flex align="center" gap={2}>
                         Email Address <SortIcon field="email" />
                       </Flex>
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader py={4} px={6} fontWeight="bold" textTransform="none" letterSpacing="normal" fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
-                      Role
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader py={4} px={6} textAlign="right" fontWeight="bold" textTransform="none" letterSpacing="normal" fontSize="sm" color={{ base: 'gray.500', _dark: 'gray.400' }}>
-                      Actions
-                    </Table.ColumnHeader>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {users.map((user) => (
-                    <Table.Row 
-                      key={user.id} 
-                      _hover={{ bg: { base: 'gray.50/80', _dark: 'whiteAlpha.50' } }}
-                      transition="background 0.2s"
-                    >
-                      <Table.Cell py={4} px={6}>
-                        <Flex align="center" gap={4}>
-                          <Flex 
-                            w={10} h={10} rounded="full" 
-                            bg={user.is_admin ? { base: "purple.100", _dark: "purple.900/40" } : { base: "blue.100", _dark: "blue.900/40" }} 
-                            color={user.is_admin ? { base: "purple.600", _dark: "purple.300" } : { base: "blue.600", _dark: "blue.300" }}
-                            justify="center" align="center"
-                            fontWeight="bold" fontSize="sm"
-                            shadow="sm"
-                          >
-                            {getInitials(user.name)}
-                          </Flex>
-                          <Text fontWeight="semibold" color={{ base: 'gray.900', _dark: 'white' }}>
-                            {user.name}
-                          </Text>
-                        </Flex>
-                      </Table.Cell>
-                      <Table.Cell py={4} px={6} color={{ base: 'gray.500', _dark: 'gray.400' }}>
-                        {user.email}
-                      </Table.Cell>
-                      <Table.Cell py={4} px={6}>
-                        {user.is_admin ? (
-                          <Badge colorScheme="purple" variant="subtle" size="sm" rounded="full" px={2.5} py={1}>
-                            <Box w={1.5} h={1.5} rounded="full" bg="purple.500" mr={1.5} />
-                            Admin
-                          </Badge>
-                        ) : (
-                          <Badge colorScheme="gray" variant="subtle" size="sm" rounded="full" px={2.5} py={1}>
-                            <Box w={1.5} h={1.5} rounded="full" bg="gray.400" mr={1.5} />
-                            Member
-                          </Badge>
-                        )}
-                      </Table.Cell>
-                      <Table.Cell py={4} px={6} textAlign="right">
-                        <Flex justify="flex-end" gap={2}>
-                          <Button
-                            variant="ghost"
-                            colorScheme="blue"
-                            size="sm"
-                            rounded="lg"
-                            w={9} p={0}
-                            onClick={() => handleEditOpen(user)}
-                            _hover={{ bg: { base: "blue.50", _dark: "blue.900/30" }, color: { base: "blue.600", _dark: "blue.300" } }}
-                          >
-                            <FiEdit2 size={16} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            colorScheme="red"
-                            size="sm"
-                            rounded="lg"
-                            w={9} p={0}
-                            onClick={() => handleDelete(user.id)}
-                            _hover={{ bg: { base: "red.50", _dark: "red.900/30" }, color: { base: "red.600", _dark: "red.300" } }}
-                          >
-                            <FiTrash2 size={16} />
-                          </Button>
-                        </Flex>
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
+                    ),
+                    headerProps: {
+                      cursor: "pointer",
+                      onClick: () => handleSort('email'),
+                      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
+                      transition: "background 0.2s"
+                    },
+                    cellProps: {
+                      color: { base: 'gray.500', _dark: 'gray.400' }
+                    },
+                    render: (user) => user.email
+                  },
+                  {
+                    header: 'Role',
+                    render: (user) => user.is_admin ? (
+                      <Badge colorScheme="purple" variant="subtle" size="sm" rounded="full" px={2.5} py={1}>
+                        <Box w={1.5} h={1.5} rounded="full" bg="purple.500" mr={1.5} />
+                        Admin
+                      </Badge>
+                    ) : (
+                      <Badge colorScheme="gray" variant="subtle" size="sm" rounded="full" px={2.5} py={1}>
+                        <Box w={1.5} h={1.5} rounded="full" bg="gray.400" mr={1.5} />
+                        Member
+                      </Badge>
+                    )
+                  },
+                  {
+                    header: 'Actions',
+                    textAlign: 'right',
+                    render: (user) => (
+                      <Flex justify="flex-end" gap={2}>
+                        <Button
+                          variant="ghost"
+                          colorScheme="blue"
+                          size="sm"
+                          rounded="lg"
+                          w={9} p={0}
+                          onClick={() => handleEditOpen(user)}
+                          _hover={{ bg: { base: "blue.50", _dark: "blue.900/30" }, color: { base: "blue.600", _dark: "blue.300" } }}
+                        >
+                          <FiEdit2 size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          colorScheme="red"
+                          size="sm"
+                          rounded="lg"
+                          w={9} p={0}
+                          onClick={() => handleDelete(user.id)}
+                          _hover={{ bg: { base: "red.50", _dark: "red.900/30" }, color: { base: "red.600", _dark: "red.300" } }}
+                        >
+                          <FiTrash2 size={16} />
+                        </Button>
+                      </Flex>
+                    )
+                  }
+                ]}
+              />
             </Box>
           </Card.Root>
 

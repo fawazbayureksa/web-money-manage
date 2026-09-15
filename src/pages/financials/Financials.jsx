@@ -340,7 +340,7 @@ export default function Financials() {
                 <Button
                   size="sm"
                   onClick={applyDateFilter}
-                  colorPalette="blue"
+                  color="blue"
                   borderRadius="xl"
                   px={3.5}
                   fontWeight="600"

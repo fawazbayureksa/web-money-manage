@@ -217,6 +217,8 @@ const FilterBar = ({ filters, pagination }) => {
   );
 };
 
+import BaseModal from '../../components/BaseModal';
+
 const BankModal = ({ isOpen, onClose, onSave, editingBank }) => {
   const [bankName, setBankName] = useState('');
   const [logo, setLogo] = useState('');
@@ -248,50 +250,32 @@ const BankModal = ({ isOpen, onClose, onSave, editingBank }) => {
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
-      <Portal>
-        <Dialog.Backdrop />
-        <Dialog.Positioner>
-          <Dialog.Content maxW="md" p={6} borderRadius="xl">
-            <Dialog.Header pb={4}>
-              <Dialog.Title fontSize="xl" fontWeight="700">
-                {editingBank ? 'Edit Bank Account' : 'Add New Bank Account'}
-              </Dialog.Title>
-            </Dialog.Header>
-            <Dialog.Body py={4}>
-              <VStack gap={4}>
-                <Field.Root required>
-                  <Field.Label>Bank Name</Field.Label>
-                  <Input value={bankName} onChange={(e) => setBankName(e.target.value)} variant="flushed" />
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label>Logo Image URL</Field.Label>
-                  <Input value={logo} onChange={(e) => setLogo(e.target.value)} variant="flushed" />
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label>Brand Color Code</Field.Label>
-                  <Flex gap={4} align="center" w="full">
-                    <Input value={color} onChange={(e) => setColor(e.target.value)} variant="flushed" flex={1} />
-                    <Box w={8} h={8} borderRadius="md" bg={color || 'gray.100'} border="1px solid" borderColor="gray.200" />
-                  </Flex>
-                </Field.Root>
-              </VStack>
-            </Dialog.Body>
-            <Dialog.Footer pt={6}>
-              <HStack gap={3}>
-                <Button variant="ghost" onClick={onClose} disabled={submitting}>Cancel</Button>
-                <Button variant="ghost" colorPalette="blue" onClick={handleSubmit} loading={submitting}>
-                  {editingBank ? 'Save Changes' : 'Create Bank'}
-                </Button>
-              </HStack>
-            </Dialog.Footer>
-            <Dialog.CloseTrigger asChild>
-              <CloseButton position="absolute" top={4} right={4} />
-            </Dialog.CloseTrigger>
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Portal>
-    </Dialog.Root>
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={editingBank ? 'Edit Bank Account' : 'Add New Bank Account'}
+      confirmText={editingBank ? 'Save Changes' : 'Create Bank'}
+      onConfirm={handleSubmit}
+      isLoading={submitting}
+    >
+      <VStack gap={4}>
+        <Field.Root required>
+          <Field.Label>Bank Name</Field.Label>
+          <Input value={bankName} onChange={(e) => setBankName(e.target.value)} variant="flushed" />
+        </Field.Root>
+        <Field.Root>
+          <Field.Label>Logo Image URL</Field.Label>
+          <Input value={logo} onChange={(e) => setLogo(e.target.value)} variant="flushed" />
+        </Field.Root>
+        <Field.Root>
+          <Field.Label>Brand Color Code</Field.Label>
+          <Flex gap={4} align="center" w="full">
+            <Input value={color} onChange={(e) => setColor(e.target.value)} variant="flushed" flex={1} />
+            <Box w={8} h={8} borderRadius="md" bg={color || 'gray.100'} border="1px solid" borderColor="gray.200" />
+          </Flex>
+        </Field.Root>
+      </VStack>
+    </BaseModal>
   );
 };
 

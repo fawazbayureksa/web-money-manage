@@ -19,6 +19,7 @@ import {
 } from "@chakra-ui/react";
 import Config from '../../components/axios/Config';
 import axios from 'axios';
+import BaseModal from "../../components/BaseModal";
 import { toaster } from "./../../components/ui/toaster";
 import { FiSearch, FiEdit2, FiTrash2, FiChevronUp, FiChevronDown, FiX, FiUser } from 'react-icons/fi';
 
@@ -494,61 +495,40 @@ export default function Users() {
       )}
 
       {/* Edit User Modal */}
-      <Dialog.Root lazyMount open={modal} onOpenChange={(e) => setModal(e.open)}>
-        <Portal>
-          <Dialog.Backdrop bg="blackAlpha.400" backdropFilter="blur(4px)" />
-          <Dialog.Positioner>
-            <Dialog.Content rounded="2xl" shadow="xl" border="none" bg={{ base: 'white', _dark: 'gray.800' }}>
-              <Dialog.Header pt={6} pb={4} px={6}>
-                <Dialog.Title fontSize="xl" fontWeight="bold" color={{ base: 'gray.900', _dark: 'white' }}>Edit User Details</Dialog.Title>
-              </Dialog.Header>
-              <Dialog.Body px={6} py={4}>
-                <Stack gap={5}>
-                  <Field.Root required>
-                    <Field.Label fontWeight="medium" color={{ base: 'gray.700', _dark: 'gray.300' }}>Full Name</Field.Label>
-                    <Input 
-                      placeholder="Enter user's name" 
-                      value={name}
-                      onChange={(e) => setName(e.target.value)} 
-                      size="lg"
-                      rounded="xl"
-                      focusRingColor="blue.500"
-                    />
-                  </Field.Root>
-                  <Field.Root required>
-                    <Field.Label fontWeight="medium" color={{ base: 'gray.700', _dark: 'gray.300' }}>Email Address</Field.Label>
-                    <Input 
-                      type="email"
-                      placeholder="Enter user's email" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)} 
-                      size="lg"
-                      rounded="xl"
-                      focusRingColor="blue.500"
-                    />
-                  </Field.Root>
-                </Stack>
-              </Dialog.Body>
-              <Dialog.Footer pt={4} pb={6} px={6}>
-                <Dialog.ActionTrigger asChild>
-                  <Button variant="ghost" rounded="xl" size="lg" color={{ _dark: 'gray.300' }}>Cancel</Button>
-                </Dialog.ActionTrigger>
-                <Button 
-                  bg="blue.600" color="white" _hover={{ bg: "blue.700" }} 
-                  onClick={handleUpdate} 
-                  loading={loading}
-                  rounded="xl" size="lg" px={8}
-                >
-                  Save Changes
-                </Button>
-              </Dialog.Footer>
-              <Dialog.CloseTrigger asChild>
-                <CloseButton size="md" position="absolute" top={4} right={4} color="gray.400" _hover={{ color: 'gray.600', _dark: { color: 'gray.300' } }} />
-              </Dialog.CloseTrigger>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
+      <BaseModal
+        isOpen={modal}
+        onClose={() => setModal(false)}
+        title="Edit User Details"
+        confirmText="Save Changes"
+        onConfirm={handleUpdate}
+        isLoading={loading}
+      >
+        <Stack gap={5}>
+          <Field.Root required>
+            <Field.Label fontWeight="medium" color={{ base: 'gray.700', _dark: 'gray.300' }}>Full Name</Field.Label>
+            <Input 
+              placeholder="Enter user's name" 
+              value={name}
+              onChange={(e) => setName(e.target.value)} 
+              size="lg"
+              rounded="xl"
+              focusRingColor="blue.500"
+            />
+          </Field.Root>
+          <Field.Root required>
+            <Field.Label fontWeight="medium" color={{ base: 'gray.700', _dark: 'gray.300' }}>Email Address</Field.Label>
+            <Input 
+              type="email"
+              placeholder="Enter user's email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)} 
+              size="lg"
+              rounded="xl"
+              focusRingColor="blue.500"
+            />
+          </Field.Root>
+        </Stack>
+      </BaseModal>
 
     </Box>
   );

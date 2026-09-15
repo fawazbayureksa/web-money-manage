@@ -18,6 +18,7 @@ import {
   Badge,
   IconButton,
 } from "@chakra-ui/react";
+import BaseModal from "../../components/BaseModal";
 import { toaster } from "./../../components/ui/toaster";
 import { useColorModeValue } from "../../components/ui/color-mode";
 import axios from "axios";
@@ -387,171 +388,105 @@ export default function Tags() {
       </Box>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog.Root
-        lazyMount
-        open={!!deleteTarget}
-        onOpenChange={(e) => {
-          if (!e.open) setDeleteTarget(null);
-        }}
-      >
-        <Portal>
-          <Dialog.Backdrop />
-          <Dialog.Positioner>
-            <Dialog.Content>
-              <Dialog.Header>
-                <Dialog.Title>Delete Tag</Dialog.Title>
-                <Dialog.Description>
-                  Are you sure you want to delete the tag{" "}
-                  <Text as="span" fontWeight="bold">
-                    {deleteTarget?.icon} {deleteTarget?.name}
-                  </Text>
-                  ? This action cannot be undone.
-                </Dialog.Description>
-              </Dialog.Header>
-              <Dialog.Footer>
-                <Dialog.ActionTrigger asChild>
-                  <Button
-                    variant="outline"
-                    onClick={() => setDeleteTarget(null)}
-                  >
-                    Cancel
-                  </Button>
-                </Dialog.ActionTrigger>
-                <Button
-                  colorPalette="red"
-                  onClick={confirmDelete}
-                  loading={loading}
-                >
-                  Delete
-                </Button>
-              </Dialog.Footer>
-              <Dialog.CloseTrigger asChild>
-                <CloseButton size="sm" />
-              </Dialog.CloseTrigger>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
+      <BaseModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete Tag"
+        description={<>Are you sure you want to delete the tag{" "}<Text as="span" fontWeight="bold">{deleteTarget?.icon} {deleteTarget?.name}</Text>? This action cannot be undone.</>}
+        confirmText="Delete"
+        onConfirm={confirmDelete}
+        isLoading={loading}
+        isDestructive={true}
+      />
 
       {/* Create / Edit Tag Dialog */}
-      <Dialog.Root
-        lazyMount
-        open={modal}
-        onOpenChange={(e) => setModal(e.open)}
+      <BaseModal
+        isOpen={modal}
+        onClose={() => setModal(false)}
+        title={editMode ? "Edit Tag" : "Create New Tag"}
+        description={editMode ? "Update tag details" : "Add a new tag to organize your transactions"}
+        confirmText={editMode ? "Update Tag" : "Create Tag"}
+        onConfirm={handleSaveTag}
+        isLoading={loading}
       >
-        <Portal>
-          <Dialog.Backdrop />
-          <Dialog.Positioner>
-            <Dialog.Content>
-              <Dialog.Header>
-                <Dialog.Title>
-                  {editMode ? "Edit Tag" : "Create New Tag"}
-                </Dialog.Title>
-                <Dialog.Description>
-                  {editMode
-                    ? "Update tag details"
-                    : "Add a new tag to organize your transactions"}
-                </Dialog.Description>
-              </Dialog.Header>
-              <Dialog.Body>
-                <VStack gap={4}>
-                  <Field.Root required>
-                    <Field.Label>
-                      Tag Name <Field.RequiredIndicator />
-                    </Field.Label>
-                    <Input
-                      placeholder="e.g., Groceries, Bills, Travel"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                    />
-                  </Field.Root>
-                  <Field.Root>
-                    <Field.Label>Color</Field.Label>
-                    <Flex gap={2} align="center">
-                      <Input
-                        type="color"
-                        name="color"
-                        value={formData.color}
-                        onChange={handleInputChange}
-                        w="16"
-                        p="0"
-                        h="10"
-                        borderRadius="md"
-                        border="1px solid"
-                        borderColor={borderColor}
-                      />
-                      <Text fontSize="sm" color="gray.500">
-                        {formData.color}
-                      </Text>
-                    </Flex>
-                  </Field.Root>
-                  <Field.Root>
-                    <Field.Label>Icon (Optional)</Field.Label>
-                    <Box>
-                      <Flex gap={2} flexWrap="wrap">
-                        <HStack
-                          p={2}
-                          borderRadius="md"
-                          border="1px solid"
-                          borderColor={
-                            formData.icon === "" ? "blue.500" : borderColor
-                          }
-                          bg={formData.icon === "" ? "blue.50" : "transparent"}
-                          cursor="pointer"
-                          onClick={() => setFormData({ ...formData, icon: "" })}
-                        >
-                          <Text fontSize="sm" color="gray.500">
-                            None
-                          </Text>
-                        </HStack>
-                        {EMOJI_OPTIONS.map((emoji) => (
-                          <Box
-                            key={emoji}
-                            p={2}
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor={
-                              formData.icon === emoji ? "blue.500" : borderColor
-                            }
-                            bg={
-                              formData.icon === emoji
-                                ? "blue.50"
-                                : "transparent"
-                            }
-                            cursor="pointer"
-                            onClick={() =>
-                              setFormData({ ...formData, icon: emoji })
-                            }
-                          >
-                            <Text fontSize="lg">{emoji}</Text>
-                          </Box>
-                        ))}
-                      </Flex>
-                    </Box>
-                  </Field.Root>
-                </VStack>
-              </Dialog.Body>
-              <Dialog.Footer>
-                <Dialog.ActionTrigger asChild>
-                  <Button variant="outline">Cancel</Button>
-                </Dialog.ActionTrigger>
-                <Button
-                  type="submit"
-                  onClick={handleSaveTag}
-                  loading={loading}
-                  colorPalette="blue"
+        <VStack gap={4}>
+          <Field.Root required>
+            <Field.Label>
+              Tag Name <Field.RequiredIndicator />
+            </Field.Label>
+            <Input
+              placeholder="e.g., Groceries, Bills, Travel"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+            />
+          </Field.Root>
+          <Field.Root>
+            <Field.Label>Color</Field.Label>
+            <Flex gap={2} align="center">
+              <Input
+                type="color"
+                name="color"
+                value={formData.color}
+                onChange={handleInputChange}
+                w="16"
+                p="0"
+                h="10"
+                borderRadius="md"
+                border="1px solid"
+                borderColor={borderColor}
+              />
+              <Text fontSize="sm" color="gray.500">
+                {formData.color}
+              </Text>
+            </Flex>
+          </Field.Root>
+          <Field.Root>
+            <Field.Label>Icon (Optional)</Field.Label>
+            <Box>
+              <Flex gap={2} flexWrap="wrap">
+                <HStack
+                  p={2}
+                  borderRadius="md"
+                  border="1px solid"
+                  borderColor={
+                    formData.icon === "" ? "blue.500" : borderColor
+                  }
+                  bg={formData.icon === "" ? "blue.50" : "transparent"}
+                  cursor="pointer"
+                  onClick={() => setFormData({ ...formData, icon: "" })}
                 >
-                  {editMode ? "Update Tag" : "Create Tag"}
-                </Button>
-              </Dialog.Footer>
-              <Dialog.CloseTrigger asChild>
-                <CloseButton size="sm" />
-              </Dialog.CloseTrigger>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
+                  <Text fontSize="sm" color="gray.500">
+                    None
+                  </Text>
+                </HStack>
+                {EMOJI_OPTIONS.map((emoji) => (
+                  <Box
+                    key={emoji}
+                    p={2}
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor={
+                      formData.icon === emoji ? "blue.500" : borderColor
+                    }
+                    bg={
+                      formData.icon === emoji
+                        ? "blue.50"
+                        : "transparent"
+                    }
+                    cursor="pointer"
+                    onClick={() =>
+                      setFormData({ ...formData, icon: emoji })
+                    }
+                  >
+                    <Text fontSize="lg">{emoji}</Text>
+                  </Box>
+                ))}
+              </Flex>
+            </Box>
+          </Field.Root>
+        </VStack>
+      </BaseModal>
     </>
   );
 }

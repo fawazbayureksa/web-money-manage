@@ -242,6 +242,8 @@ export default function BudgetForm() {
                 type="submit"
                 loading={loading}
                 colorPalette="blue"
+                bg="blue.500"
+                color="white"
               >
                 {isEditMode ? 'Update' : 'Create'} Budget
               </Button>

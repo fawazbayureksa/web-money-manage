@@ -313,7 +313,8 @@ const WalletForm = () => {
                       Cancel
                     </Button>
                     <Button
-                      colorPalette="blue"
+                      bg="blue.500"
+                      color="white"
                       type="submit"
                       loading={loading}
                       flex={1}

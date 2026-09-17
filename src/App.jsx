@@ -24,6 +24,9 @@ import Financials from './pages/financials/Financials'
 import WalletDashboard from './pages/wallets/WalletDashboard'
 import WalletForm from './pages/wallets/WalletForm'
 import AnalyticsTags from './pages/analytics/AnalyticsTags'
+import DebtsList from './pages/debts/DebtsList'
+import DebtDetail from './pages/debts/DebtDetail'
+import PayoffStrategies from './pages/debts/PayoffStrategies'
 
 function Layout() {
   return (
@@ -91,6 +94,9 @@ function App() {
           <Route path="wallets" element={<WalletDashboard />} />
           <Route path="wallets/new" element={<WalletForm />} />
           <Route path="wallets/edit/:id" element={<WalletForm />} />
+          <Route path="debts" element={<DebtsList />} />
+          <Route path="debts/:id" element={<DebtDetail />} />
+          <Route path="debts/strategies" element={<PayoffStrategies />} />
           <Route path="categories" element={<Category />} />
           <Route path="tags" element={<Tags />} />
           <Route path="transaction" element={<Transaction />} />

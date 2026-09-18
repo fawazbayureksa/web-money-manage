@@ -20,7 +20,7 @@ export default function CategoryHeader({ onOpenModal }) {
     >
       <Box>
         <Flex align="center" gap={2} mb={2}>
-          <Box w={2} h={2} borderRadius="full" bg="blue.500" />
+          {/* <Box w={2} h={2} borderRadius="full" bg="blue.500" /> */}
           <Text fontSize="xs" fontWeight="600" textTransform="uppercase" letterSpacing="widest" color={subtitleColor}>
             Category Classification
           </Text>

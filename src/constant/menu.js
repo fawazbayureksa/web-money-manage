@@ -9,6 +9,7 @@
   FiTag,
   FiPieChart,
   FiTrendingUp,
+  FiTrendingDown,
   FiBell,
   FiPlusCircle,
   FiLayers,
@@ -28,6 +29,7 @@
       items: [
         { label: 'Transactions', icon: FiList, path: '/transactions' },
         { label: 'Add Transaction', icon: FiPlusCircle, path: '/transaction' },
+        { label: 'Debts', icon: FiTrendingDown, path: '/debts' },
         { label: 'Banks', icon: FiDollarSign, path: '/banks' },
         { label: 'Wallets', icon: FiCreditCard, path: '/wallets' },
         { label: 'Budget', icon: FiTrendingUp, path: '/budget' },

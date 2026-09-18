@@ -283,7 +283,7 @@ export default function Financials() {
         >
           <Box>
             <Flex align="center" gap={2} mb={2}>
-              <Box w={2} h={2} borderRadius="full" bg="blue.500" />
+              {/* <Box w={2} h={2} borderRadius="full" bg="blue.500" /> */}
               <Text fontSize="xs" fontWeight="600" textTransform="uppercase" letterSpacing="widest" color={subtitleColor}>
                 Financial Analytics
               </Text>
@@ -408,7 +408,7 @@ export default function Financials() {
           >
             <Flex justify="space-between" align="center" mb={2}>
               <Flex align="center" gap={2}>
-                <Box w={2} h={2} borderRadius="full" bg="blue.500" />
+                {/* <Box w={2} h={2} borderRadius="full" bg="blue.500" /> */}
                 <Text fontSize="xs" fontWeight="700" textTransform="uppercase" letterSpacing="wider" color={useColorModeValue('blue.700', 'blue.300')}>
                   Active Pay Cycle Periods
                 </Text>

@@ -36,16 +36,11 @@ const WalletDashboard = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.100', 'gray.700');
   const subtitleColor = useColorModeValue('gray.600', 'gray.400');
-
-  // Value visibility hook
   const { isHidden, toggleVisibility, formatValue } = useLocalValueVisibility();
-
-  // Format currency with visibility check
   const displayCurrency = (amount, currency) => {
     return formatValue(amount, (value) => formatCurrency(value, currency));
   };
 
-  // Format number with visibility check
   const displayNumber = (value) => {
     return formatValue(value, (val) => val.toLocaleString('id-ID'));
   };
@@ -143,7 +138,7 @@ const WalletDashboard = () => {
         >
           <Box>
             <Flex align="center" gap={2} mb={2}>
-              <Box w={2} h={2} borderRadius="full" bg="blue.500" />
+              {/* <Box w={2} h={2} borderRadius="full" bg="blue.500" /> */}
               <Text fontSize="xs" fontWeight="600" textTransform="uppercase" letterSpacing="widest" color={subtitleColor}>
                 Asset Infrastructure
               </Text>
@@ -175,7 +170,6 @@ const WalletDashboard = () => {
           </HStack>
         </Flex>
 
-        {/* Currency Summary Metric Cards */}
         {summaryLoading ? (
           <Flex justify="center" py={8}>
             <Spinner size="xl" color="blue.500" />
@@ -213,9 +207,7 @@ const WalletDashboard = () => {
           </SimpleGrid>
         )}
 
-        {/* Chart & Quick Stats Row */}
         <Grid templateColumns={{ base: '1fr', lg: '7fr 5fr' }} gap={6} mb={8}>
-          {/* Balance by Currency Chart */}
           <Box
             bg={cardBg}
             borderRadius="2xl"
@@ -246,7 +238,7 @@ const WalletDashboard = () => {
             )}
           </Box>
 
-          {/* Quick Stats Panel */}
+
           <Box
             bg={cardBg}
             borderRadius="2xl"

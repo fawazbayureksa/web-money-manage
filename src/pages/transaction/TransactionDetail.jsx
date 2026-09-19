@@ -186,7 +186,6 @@ export default function TransactionDetail() {
 
   return (
     <Box maxW="2xl" mx="auto" px={4} py={6}>
-      {/* Back + Actions */}
       <Flex justify="space-between" align="center" mb={6}>
         <Button
           variant="ghost"
@@ -198,10 +197,11 @@ export default function TransactionDetail() {
           Back
         </Button>
         <Button
-          colorPalette="blue"
+          color="blue.500"
           size="sm"
           onClick={() => navigate(`/transaction/edit/${id}`)}
           borderRadius="lg"
+          className="hover:bg-warning-600 hover:text-white transition-colors duration-200"
         >
           <Icon as={FiEdit2} mr={2} />
           Edit

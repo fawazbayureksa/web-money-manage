@@ -43,7 +43,7 @@ export default function TransactionPagination({ page, totalPages, totalItems, li
                                 w="7"
                                 h="7"
                                 onClick={() => onPageChange(pageNum)}
-                                colorPalette={page === pageNum ? 'blue' : 'gray'}
+                                bg="blue.500" color="white"
                                 variant={page === pageNum ? 'solid' : 'ghost'}
                                 borderRadius="lg"
                                 fontWeight={page === pageNum ? '700' : '500'}

@@ -261,7 +261,7 @@ export const TagSelector = ({ selectedTags, onTagsChange, categoryId, descriptio
                         </Box>
                       ))}
                     </Flex>
-                    <Button size="sm" colorPalette="blue" onClick={handleCreateTag} w="full">
+                    <Button size="sm" bg="blue.500" color="white" onClick={handleCreateTag} w="full">
                       Create Tag
                     </Button>
                   </VStack>

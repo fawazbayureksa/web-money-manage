@@ -161,7 +161,7 @@ export default function Login() {
 
                   <Button
                     type="submit"
-                    colorPalette="blue"
+                    color="white"
                     size="lg"
                     bg={"blue.600"}
                     fontSize="md"

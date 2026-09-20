@@ -186,7 +186,7 @@ export default function BudgetAlerts() {
           <Button
             flex={{ base: 1, md: 'initial' }}
             variant={showUnreadOnly ? 'solid' : 'surface'}
-            colorPalette={showUnreadOnly ? 'blue' : 'gray'}
+            bg="blue.500" color="white"
             size="md"
             onClick={() => setShowUnreadOnly(!showUnreadOnly)}
           >
@@ -196,7 +196,7 @@ export default function BudgetAlerts() {
             <Button
               flex={{ base: 1, md: 'initial' }}
               variant="subtle"
-              colorPalette="green"
+              bg="blue.500" color="white"
               size="md"
               onClick={markAllAsRead}
             >
@@ -270,7 +270,7 @@ export default function BudgetAlerts() {
       {error && (
         <Box textAlign="center" py={10} bg="red.50" borderRadius="xl" border="1px solid" borderColor="red.100">
           <Text color="red.600" fontWeight="bold">Error: {error}</Text>
-          <Button mt={4} colorPalette="red" variant="subtle" onClick={fetchAlerts}>Try Again</Button>
+          <Button mt={4} bg="blue.500" color="white" variant="subtle" onClick={fetchAlerts}>Try Again</Button>
         </Box>
       )}
 
@@ -355,7 +355,7 @@ export default function BudgetAlerts() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            colorPalette={config.color}
+                            bg="blue.500" color="white"
                             onClick={() => markAsRead(alert.id)}
                             borderRadius="lg"
                             _hover={{ bg: `${config.color}.50`, _dark: { bg: `${config.color}.900/30` } }}
@@ -442,7 +442,7 @@ export default function BudgetAlerts() {
                         size="sm"
                         onClick={() => setPage(pageNum)}
                         variant={page === pageNum ? 'solid' : 'outline'}
-                        colorPalette={page === pageNum ? 'blue' : 'gray'}
+                        bg="blue.500"
                         color={page === pageNum ? 'blue' : 'gray'}
                         borderRadius="lg"
                       >
@@ -519,7 +519,7 @@ export default function BudgetAlerts() {
                 </Box>
                 {showUnreadOnly && (
                   <Button 
-                    colorPalette="blue" 
+                    bg="blue.500" color="white" 
                     variant="subtle" 
                     size="lg" 
                     borderRadius="2xl"

@@ -241,7 +241,6 @@ export default function BudgetForm() {
               <Button 
                 type="submit"
                 loading={loading}
-                colorPalette="blue"
                 bg="blue.500"
                 color="white"
               >

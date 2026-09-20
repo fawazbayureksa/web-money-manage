@@ -1031,7 +1031,7 @@ export default function Financials() {
 
             <Button
               onClick={handleCloseSettings}
-              colorPalette="blue"
+              bg="blue.500" color="white"
               width="full"
             >
               Close

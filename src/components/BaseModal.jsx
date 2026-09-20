@@ -80,7 +80,7 @@ export default function BaseModal({
                     onClick={onConfirm}
                     variant={isDestructive ? 'solid' : 'primary'}
                     loading={isLoading}
-                    colorPalette={isDestructive ? 'red' : 'blue'}
+                    bg="blue.500" color="white"
                     borderRadius="xl"
                     fontWeight="600"
                   >

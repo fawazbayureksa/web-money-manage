@@ -118,7 +118,7 @@ export default function AnalyticsTags() {
           />
           <Button
             size="sm"
-            colorPalette="blue"
+            bg="blue.500" color="white"
             borderRadius="lg"
             onClick={fetchAnalytics}
             loading={loading}
@@ -230,7 +230,7 @@ export default function AnalyticsTags() {
                 No tag spending found for the selected date range. Try tagging some transactions first.
               </Text>
             </VStack>
-            <Button colorPalette="blue" onClick={fetchAnalytics} borderRadius="lg">
+            <Button bg="blue.500" color="white" onClick={fetchAnalytics} borderRadius="lg">
               Refresh
             </Button>
           </VStack>

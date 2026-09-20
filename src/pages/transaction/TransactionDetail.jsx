@@ -343,7 +343,7 @@ export default function TransactionDetail() {
                     </Button>
                     <Button
                       size="xs"
-                      colorPalette="blue"
+                      bg="blue.500" color="white"
                       borderRadius="md"
                       onClick={handleSaveCategoryAndTags}
                       loading={updatingMeta}
@@ -355,7 +355,7 @@ export default function TransactionDetail() {
                   <Button
                     size="xs"
                     variant="ghost"
-                    colorPalette="blue"
+                    bg="blue.500" color="white"
                     borderRadius="md"
                     onClick={openMetaEditor}
                   >

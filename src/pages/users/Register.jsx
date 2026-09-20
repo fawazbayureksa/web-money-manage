@@ -187,9 +187,9 @@ export default function Register() {
 
                   <Button
                     type="submit"
-                    colorPalette="green"
                     size="lg"
                     bg={"green.600"}
+                    color="white"
                     fontSize="md"
                     isLoading={isLoading}
                     disabled={isLoading}

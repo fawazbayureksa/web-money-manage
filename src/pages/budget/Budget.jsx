@@ -174,7 +174,7 @@ function BudgetCard({ budget, onEdit, onDelete }) {
             <Button
               size="xs"
               variant="ghost"
-              colorPalette="red"
+              bg="blue.500" color="white"
               borderRadius="lg"
               onClick={() => onDelete(budget.id)}
             >
@@ -470,7 +470,7 @@ export default function Budget() {
             </Box>
 
             {hasFilters && (
-              <Button size="sm" variant="ghost" colorPalette="red" borderRadius="xl" onClick={handleClearFilters}>
+              <Button size="sm" variant="ghost" bg="blue.500" color="white" borderRadius="xl" onClick={handleClearFilters}>
                 <FaXmark style={{ marginRight: '4px' }} size={12} />
                 Clear
               </Button>
@@ -602,7 +602,7 @@ export default function Budget() {
                       h="7"
                       bg="blue.500"
                       onClick={() => setPage(n)}
-                      colorPalette={page === n ? 'blue' : 'gray'}
+                      color="white"
                       variant={page === n ? 'solid' : 'ghost'}
                       borderRadius="lg"
                       fontWeight={page === n ? '700' : '500'}

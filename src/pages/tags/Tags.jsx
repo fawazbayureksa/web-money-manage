@@ -247,7 +247,7 @@ export default function Tags() {
             </Text>
           </Box>
           <Button
-            colorPalette="blue"
+            bg="blue.500" color="white"
             onClick={handleOpenModal}
             leftIcon={<FiPlus />}
           >
@@ -366,7 +366,7 @@ export default function Tags() {
                 </Text>
               </VStack>
               <Button
-                colorPalette="blue"
+                bg="blue.500" color="white"
                 onClick={handleOpenModal}
                 leftIcon={<FiPlus />}
               >

@@ -157,10 +157,10 @@ const BankCard = ({ bank, onEdit, onDelete }) => {
       </Flex>
       
       <HStack gap={2}>
-        <Button size="sm" variant="ghost" colorPalette="blue" onClick={() => onEdit(bank)}>
+        <Button size="sm" variant="ghost" bg="blue.500" color="white" onClick={() => onEdit(bank)}>
           <FiEdit2 />
         </Button>
-        <Button size="sm" variant="ghost" colorPalette="red" onClick={() => onDelete(bank.id)}>
+        <Button size="sm" variant="ghost" bg="blue.500" color="white" onClick={() => onDelete(bank.id)}>
           <FiTrash2 />
         </Button>
       </HStack>
@@ -197,10 +197,10 @@ const FilterBar = ({ filters, pagination }) => {
           variant="flushed"
           borderBottomColor={borderColor}
         />
-        <Button onClick={handleSearch} variant="ghost" colorPalette="blue">
+        <Button onClick={handleSearch} variant="ghost" bg="blue.500" color="white">
           <FiSearch /> Search
         </Button>
-        <Button onClick={handleClear} variant="ghost" colorPalette="gray">
+        <Button onClick={handleClear} variant="ghost" bg="blue.500" color="white">
           Clear
         </Button>
       </Flex>

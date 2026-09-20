@@ -123,7 +123,7 @@ export default function TransactionFilters({
                     </select>
 
                     {hasActiveFilters && (
-                        <Button variant="ghost" colorPalette="red" size="sm" borderRadius="xl" onClick={onClearFilters}>
+                        <Button variant="ghost" bg="blue.500" color="white" size="sm" borderRadius="xl" onClick={onClearFilters}>
                             <FiFilter style={{ marginRight: '4px' }} />
                             Clear All
                         </Button>

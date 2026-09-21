@@ -19,6 +19,7 @@ import Config from '../../components/axios/Config';
 import { toaster } from '../../components/ui/toaster';
 import { useColorModeValue } from '../../components/ui/color-mode';
 import { SelectComponent } from '../../components/form/SelectComponent';
+import { useBankManagement } from '../banks/Banks';
 
 const WalletForm = () => {
   const navigate = useNavigate();
@@ -55,6 +56,18 @@ const WalletForm = () => {
       { label: 'SGD', value: 'SGD' },
     ],
   });
+
+  const { banks } = useBankManagement({ pageSize: 100, sortBy: 'bank_name', sortDir: 'asc' });
+
+  const bankOptions = [
+    ...(formData.bank_name && !banks.some((b) => b.bank_name === formData.bank_name)
+      ? [{ label: formData.bank_name, value: formData.bank_name }]
+      : []),
+    ...banks.map((bank) => ({
+      label: bank.bank_name,
+      value: bank.bank_name,
+    })),
+  ];
 
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const cardBg = useColorModeValue('white', 'gray.800');
@@ -107,7 +120,7 @@ const WalletForm = () => {
   const handleSelectChange = (name, value) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value[0],
+      [name]: value[0] || '',
     }));
   };
 
@@ -278,15 +291,15 @@ const WalletForm = () => {
                   </HStack>
 
                   <Field.Root>
-                    <Field.Label fontSize="lg" fontWeight="semibold">
-                      Bank Name (optional)
-                    </Field.Label>
-                    <Input
-                      name="bank_name"
-                      placeholder="e.g., Bank ABC"
-                      value={formData.bank_name}
-                      onChange={handleInputChange}
+                    <SelectComponent
+                      label="Bank Name (optional)"
+                      placeholder="Select bank"
+                      options={bankOptions}
+                      value={formData.bank_name ? [formData.bank_name] : []}
+                      onChange={(value) => handleSelectChange('bank_name', value)}
+                      width="100%"
                       size="lg"
+                      clearable
                     />
                   </Field.Root>
 

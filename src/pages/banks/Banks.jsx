@@ -22,21 +22,27 @@ import { useColorModeValue } from '../../components/ui/color-mode';
 import { FiPlus, FiSearch, FiTrash2, FiCreditCard, FiEdit2 } from 'react-icons/fi';
 
 // --- Custom Hook for Business Logic ---
-function useBankManagement() {
+export function useBankManagement(initialOptions = {}) {
+  const initialPageSize = typeof initialOptions === 'number'
+    ? initialOptions
+    : (initialOptions?.pageSize || 10);
+  const initialSortBy = (typeof initialOptions === 'object' && initialOptions?.sortBy) || '';
+  const initialSortDir = (typeof initialOptions === 'object' && initialOptions?.sortDir) || 'asc';
+
   const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Pagination & Filters
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(initialPageSize);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [search, setSearch] = useState('');
   const [filterBankName, setFilterBankName] = useState('');
   const [filterColor, setFilterColor] = useState('');
-  const [sortBy, setSortBy] = useState('');
-  const [sortDir, setSortDir] = useState('asc');
+  const [sortBy, setSortBy] = useState(initialSortBy);
+  const [sortDir, setSortDir] = useState(initialSortDir);
 
   const fetchBanks = useCallback(async () => {
     setLoading(true);

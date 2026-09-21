@@ -1,15 +1,16 @@
 import { Portal, Select, createListCollection } from "@chakra-ui/react";
 
 export const SelectComponent = ({
-  options,
+  options = [],
   onChange,
   value,
   placeholder = "Select framework",
-  label = "Select framework",
+  label = "",
   width = "320px",
   size = "sm",
+  clearable = false,
 }) => {
-  const collection = createListCollection({ items: options });
+  const collection = createListCollection({ items: options || [] });
 
   return (
     <Select.Root 
@@ -19,12 +20,13 @@ export const SelectComponent = ({
       value={value}
       onValueChange={({ value }) => onChange(value)}
     >
-      <Select.Label>{label}</Select.Label>
+      {label && <Select.Label>{label}</Select.Label>}
       <Select.Control>
         <Select.Trigger>
           <Select.ValueText placeholder={placeholder} />
         </Select.Trigger>
         <Select.IndicatorGroup>
+          {clearable && <Select.ClearTrigger />}
           <Select.Indicator />
         </Select.IndicatorGroup>
       </Select.Control>

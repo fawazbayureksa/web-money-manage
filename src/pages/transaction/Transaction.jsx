@@ -10,7 +10,6 @@ import {
   Card,
   Grid,
   Text,
-  Icon,
   Flex,
   Badge,
 } from '@chakra-ui/react'
@@ -20,15 +19,6 @@ import { useColorModeValue } from '../../components/ui/color-mode'
 import { SelectComponent } from '../../components/form/SelectComponent'
 import { TagSelector } from '../../components/tags/TagSelector'
 import Config from '../../components/axios/Config'
-import { 
-  FaMoneyBillWave, 
-  FaWallet, 
-  FaTag, 
-  FaAlignLeft, 
-  FaCalendarAlt, 
-  FaArrowDown, 
-  FaArrowUp 
-} from 'react-icons/fa'
 
 export default function Transaction() {
   const [wallets, setWallets] = useState([])
@@ -158,13 +148,11 @@ export default function Transaction() {
       date: formData.date,
       tag_ids: selectedTags.map(tag => tag.id)
     }
-    console.log('Submitting transaction with payload:', payload)
     try {
-      const response = await axios.post(url, payload, Config({ 
+      await axios.post(url, payload, Config({ 
         Authorization: `Bearer ${token}`
       }))
       
-      console.log('Transaction response:', response.data)
       toaster.create({
         description: "Transaction recorded successfully",
         type: "success",
@@ -180,7 +168,6 @@ export default function Transaction() {
       })
       setSelectedTags([])
     } catch (error) {
-      console.error(error);
       toaster.create({
         description: "Failed to record transaction",
         type: "error",
@@ -218,7 +205,7 @@ export default function Transaction() {
                 {/* Transaction Type Toggle */}
                 <Grid templateColumns="1fr 1fr" gap={4} w="full">
                   <Button
-                    height="60px"
+                    height="48px"
                     variant={formData.transaction_type === "Income" ? "solid" : "outline"}
                     bg={formData.transaction_type === "Income" ? incomeBg : "transparent"}
                     borderColor={formData.transaction_type === "Income" ? incomeColor : borderColor}
@@ -230,14 +217,12 @@ export default function Transaction() {
                     onClick={() => handleTypeSelect("Income")}
                     borderRadius="xl"
                     borderWidth={formData.transaction_type === "Income" ? "2px" : "1px"}
+                    fontWeight="semibold"
                   >
-                    <VStack gap={0}>
-                      <Icon as={FaArrowDown} fontSize="lg" mb={1} />
-                      <Text fontSize="sm" fontWeight="bold">Income</Text>
-                    </VStack>
+                    Income
                   </Button>
                   <Button
-                    height="60px"
+                    height="48px"
                     variant={formData.transaction_type === "Expense" ? "solid" : "outline"}
                     bg={formData.transaction_type === "Expense" ? expenseBg : "transparent"}
                     borderColor={formData.transaction_type === "Expense" ? expenseColor : borderColor}
@@ -249,18 +234,14 @@ export default function Transaction() {
                     onClick={() => handleTypeSelect("Expense")}
                     borderRadius="xl"
                     borderWidth={formData.transaction_type === "Expense" ? "2px" : "1px"}
+                    fontWeight="semibold"
                   >
-                    <VStack gap={0}>
-                      <Icon as={FaArrowUp} fontSize="lg" mb={1} />
-                      <Text fontSize="sm" fontWeight="bold">Expense</Text>
-                    </VStack>
+                    Expense
                   </Button>
                 </Grid>
 
-                {/* Amount Input */}
                 <Field.Root required>
-                  <Field.Label display="flex" alignItems="center" gap={2}>
-                    <Icon as={FaMoneyBillWave} color="blue.500" />
+                  <Field.Label>
                     Amount
                     <Field.RequiredIndicator />
                   </Field.Label>
@@ -282,8 +263,7 @@ export default function Transaction() {
 
                 {/* Date Input */}
                 <Field.Root required>
-                  <Field.Label display="flex" alignItems="center" gap={2}>
-                    <Icon as={FaCalendarAlt} color="purple.500" />
+                  <Field.Label>
                     Date
                     <Field.RequiredIndicator />
                   </Field.Label>
@@ -305,8 +285,7 @@ export default function Transaction() {
                 {/* Wallet and Category Grid */}
                 <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
                   <Field.Root required>
-                    <Field.Label display="flex" alignItems="center" gap={2} mb={1.5}>
-                      <Icon as={FaWallet} color="orange.500" />
+                    <Field.Label mb={1.5}>
                       Wallet / Asset
                       <Field.RequiredIndicator />
                     </Field.Label>
@@ -335,8 +314,7 @@ export default function Transaction() {
                   </Field.Root>
 
                   <Field.Root required>
-                     <Field.Label display="flex" alignItems="center" gap={2} mb={1.5}>
-                      <Icon as={FaTag} color="pink.500" />
+                     <Field.Label mb={1.5}>
                       Category
                       <Field.RequiredIndicator />
                     </Field.Label>
@@ -354,8 +332,7 @@ export default function Transaction() {
 
                 {/* Description */}
                 <Field.Root>
-                  <Field.Label display="flex" alignItems="center" gap={2}>
-                    <Icon as={FaAlignLeft} color="gray.500" />
+                  <Field.Label>
                     Description
                   </Field.Label>
                   <Input
@@ -370,8 +347,7 @@ export default function Transaction() {
 
                 {/* Tags */}
                 <Field.Root>
-                  <Field.Label display="flex" alignItems="center" gap={2}>
-                    <Icon as={FaTag} color="blue.500" />
+                  <Field.Label>
                     Tags
                   </Field.Label>
                   <TagSelector

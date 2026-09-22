@@ -62,7 +62,7 @@ export default function MonthlyComparisonChart({ data = [] }) {
 
     // Transform data for chart
     const chartData = data.map(item => ({
-        name: new Date(item.month + '-01').toLocaleDateString('en-US', {
+        name: item.period_label || new Date(item.month + '-01').toLocaleDateString('en-US', {
             month: 'short',
             year: '2-digit'
         }),

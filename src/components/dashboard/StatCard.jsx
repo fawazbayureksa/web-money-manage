@@ -12,6 +12,8 @@ export default function StatCard({
     icon: IconComponent,
     change,
     changeLabel,
+    subtitle,
+    valueColor,
     colorScheme = 'blue',
     formatValue
 }) {
@@ -35,6 +37,10 @@ export default function StatCard({
 
     const isPositiveChange = change > 0;
     const changeColor = isPositiveChange ? positiveChangeColor : negativeChangeColor;
+    const changeBg = useColorModeValue(
+        isPositiveChange ? 'green.50' : 'red.50',
+        isPositiveChange ? 'green.950/40' : 'red.950/40'
+    );
 
     const displayValue = formatValue ? formatValue(value) : value;
 
@@ -55,9 +61,14 @@ export default function StatCard({
                         <Text fontSize="xs" fontWeight="600" textTransform="uppercase" letterSpacing="wider" color={labelColor} mb={1.5}>
                             {title}
                         </Text>
-                        <Text fontSize="2xl" fontWeight="bold" letterSpacing="tight">
+                        <Text fontSize="2xl" fontWeight="bold" letterSpacing="tight" color={valueColor}>
                             {displayValue}
                         </Text>
+                        {subtitle && (
+                            <Text fontSize="xs" color={labelColor} mt={2}>
+                                {subtitle}
+                            </Text>
+                        )}
                         {change !== undefined && (
                             <Flex align="center" gap={1.5} mt={2.5}>
                                 <Flex
@@ -66,7 +77,7 @@ export default function StatCard({
                                     px={2}
                                     py={0.5}
                                     borderRadius="full"
-                                    bg={useColorModeValue(isPositiveChange ? 'green.50' : 'red.50', isPositiveChange ? 'green.950/40' : 'red.950/40')}
+                                    bg={changeBg}
                                 >
                                     <Icon
                                         as={isPositiveChange ? FiTrendingUp : FiTrendingDown}

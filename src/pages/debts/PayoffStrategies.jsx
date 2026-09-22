@@ -113,13 +113,7 @@ export default function PayoffStrategies() {
 
         {/* Page Header */}
         <Box mb={8}>
-          <Flex align="center" gap={2} mb={2}>
-            <Box w={2} h={2} borderRadius="full" bg="purple.500" />
-            <Text fontSize="xs" fontWeight="700" textTransform="uppercase" letterSpacing="widest" color={subtitleColor}>
-              Optimization & Acceleration
-            </Text>
-          </Flex>
-          <Heading as="h1" size={{ base: 'xl', md: '2xl' }} fontWeight="800" letterSpacing="tight" mb={2}>
+          <Heading as="h5" size={{ base: 'xl', md: '2xl' }} fontWeight="800" letterSpacing="tight" mb={2}>
             Debt Payoff Strategies
           </Heading>
           <Text color={subtitleColor} fontSize="md" maxW="3xl">

@@ -54,6 +54,7 @@ const WalletForm = () => {
       { label: 'USD', value: 'USD' },
       { label: 'EUR', value: 'EUR' },
       { label: 'SGD', value: 'SGD' },
+      { label: '¥', value: 'YEN' },
     ],
   });
 

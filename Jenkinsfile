@@ -19,5 +19,13 @@ pipeline {
                 sh 'npm run build'
             }
         }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    rsync -av --delete dist/ /mnt/data/www/web-money-manage/dist/
+                '''
+            }
+        }
     }
 }

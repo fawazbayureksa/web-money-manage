@@ -23,7 +23,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    rsync -av --delete --no-owner --no-group \
+                    rsync -av --delete \
+                        --no-owner \
+                        --no-group \
+                        --no-times \
                         dist/ \
                         /mnt/data/www/web-money-manage/dist/
                 '''

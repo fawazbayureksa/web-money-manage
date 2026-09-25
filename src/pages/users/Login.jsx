@@ -105,7 +105,7 @@ export default function Login() {
         <Flex bg={bgColor} align="center" justify="center" p={8}>
           <Stack spacing={8} w="full" maxW="md">
             <Stack spacing={2} textAlign="center">
-              <Heading fontSize="3xl">Welcome</Heading>
+              <Heading fontSize="3xl">Welcome Back</Heading>
               <Text fontSize="lg" color={textColor}>
                 Sign in to your account
               </Text>

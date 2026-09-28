@@ -1,10 +1,7 @@
 import { useState, useCallback, createContext, useContext } from 'react';
-/* eslint-disable react-refresh/only-export-components */
 
-// Create context for value visibility
 const ValueVisibilityContext = createContext(null);
 
-// Provider component
 export function ValueVisibilityProvider({ children }) {
   const [isHidden, setIsHidden] = useState(false);
 
@@ -26,7 +23,6 @@ export function ValueVisibilityProvider({ children }) {
   );
 }
 
-// Hook to use value visibility
 export function useValueVisibility() {
   const context = useContext(ValueVisibilityContext);
   if (!context) {
@@ -35,7 +31,6 @@ export function useValueVisibility() {
   return context;
 }
 
-// Standalone hook for local state (when provider is not needed)
 export function useLocalValueVisibility() {
   const [isHidden, setIsHidden] = useState(true);
 

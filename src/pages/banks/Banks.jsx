@@ -21,7 +21,6 @@ import { toaster } from "./../../components/ui/toaster";
 import { useColorModeValue } from '../../components/ui/color-mode';
 import { FiPlus, FiSearch, FiTrash2, FiCreditCard, FiEdit2 } from 'react-icons/fi';
 
-// --- Custom Hook for Business Logic ---
 export function useBankManagement(initialOptions = {}) {
   const initialPageSize = typeof initialOptions === 'number'
     ? initialOptions
@@ -33,7 +32,6 @@ export function useBankManagement(initialOptions = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Pagination & Filters
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
   const [totalPages, setTotalPages] = useState(1);
@@ -121,8 +119,6 @@ export function useBankManagement(initialOptions = {}) {
     filters: { search, setSearch, filterBankName, setFilterBankName, filterColor, setFilterColor, sortBy, setSortBy, sortDir, setSortDir }
   };
 }
-
-// --- UI Components ---
 
 const BankCard = ({ bank, onEdit, onDelete }) => {
   const subtitleColor = useColorModeValue('gray.500', 'gray.400');
@@ -249,7 +245,6 @@ const BankModal = ({ isOpen, onClose, onSave, editingBank }) => {
       await onSave({ bank_name: bankName, image: logo, color }, editingBank?.id);
       onClose();
     } catch (err) {
-      // Error is handled in useBankManagement
     } finally {
       setSubmitting(false);
     }
@@ -285,7 +280,6 @@ const BankModal = ({ isOpen, onClose, onSave, editingBank }) => {
   );
 };
 
-// --- Main Page Component ---
 export default function Banks() {
   const { banks, loading, error, deleteBank, saveBank, pagination, filters } = useBankManagement();
   

@@ -216,7 +216,6 @@ export default function TransactionDetail() {
         overflow="hidden"
         boxShadow="lg"
       >
-        {/* Amount Header */}
         <Box
           bg={isIncome ? incomeBg : expenseBg}
           px={8}
@@ -249,7 +248,6 @@ export default function TransactionDetail() {
 
         <Card.Body p={6}>
           <VStack gap={4} align="stretch">
-            {/* Description */}
             <Box>
               <Text fontSize="xs" fontWeight="semibold" color={subtitleColor} textTransform="uppercase" mb={1}>
                 Description
@@ -261,7 +259,6 @@ export default function TransactionDetail() {
 
             <Separator />
 
-            {/* Details Grid */}
             <Box>
               <VStack gap={3} align="stretch">
                 <Flex justify="space-between" align="center">
@@ -321,7 +318,6 @@ export default function TransactionDetail() {
 
             <Separator />
 
-            {/* Tags section with inline editing */}
             <Box>
               <Flex justify="space-between" align="center" mb={3}>
                 <HStack color={subtitleColor} gap={2}>
@@ -364,7 +360,6 @@ export default function TransactionDetail() {
                 )}
               </Flex>
 
-              {/* Existing tags */}
               {selectedTags && selectedTags.length > 0 ? (
                 <Flex gap={2} flexWrap="wrap" mb={showMetaEditor ? 3 : 0}>
                   {selectedTags.map((tag) => (
@@ -395,7 +390,6 @@ export default function TransactionDetail() {
                 )
               )}
 
-              {/* Inline tag selector */}
               {showMetaEditor && (
                 <Box mt={2}>
                   <TagSelector

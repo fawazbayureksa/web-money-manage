@@ -58,14 +58,12 @@ const CustomLegend = ({ payload }) => {
     return (
         <VStack align="stretch" gap={2} mt={4}>
             {payload?.map((entry, index) => (
-                <Flex key={index} justify="space-between" align="center">
-                    <Flex align="center" gap={2}>
-                        <Box w={3} h={3} borderRadius="full" bg={entry.color} />
-                        <Text fontSize="sm" noOfLines={1} maxW="120px">
-                            {entry.value}
-                        </Text>
-                    </Flex>
-                    <Text fontSize="sm" fontWeight="medium">
+                <Flex key={index} align="center" gap={2}>
+                    <Box w={3} h={3} flexShrink={0} borderRadius="full" bg={entry.color} />
+                    <Text fontSize="sm" flex={1} truncate>
+                        {entry.value}
+                    </Text>
+                    <Text fontSize="sm" fontWeight="medium" minW="36px" textAlign="right">
                         {entry.payload?.percent
                             ? `${(entry.payload.percent * 100).toFixed(0)}%`
                             : ''}
@@ -113,7 +111,7 @@ export default function CategoryDonutChart({
                 <PieChart>
                     <Pie
                         data={chartDataWithPercent}
-                        cx="50%"
+                        cx="30%"
                         cy="45%"
                         innerRadius={60}
                         outerRadius={100}

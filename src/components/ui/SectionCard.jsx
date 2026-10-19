@@ -13,6 +13,7 @@ export default function SectionCard({
   badgeColor = 'blue',
   mb,
   children,
+  ...rest
 }) {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.100', 'gray.700');
@@ -27,6 +28,7 @@ export default function SectionCard({
       p={{ base: 5, md: 6 }}
       shadow="xs"
       mb={mb}
+      {...rest}
     >
       <Flex justify="space-between" align="center" mb={6}>
         <Box>

@@ -339,10 +339,18 @@ export default function Financials() {
         {/* Category & Asset donuts */}
         <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={6} mb={8}>
           <SectionCard title="Spending by Category" subtitle={rangeLabel} badge="Categories" badgeColor="blue">
-            <CategoryDonutChart data={byCategory} emptyMessage="No category data available for this range" />
+            <CategoryDonutChart
+              data={byCategory}
+              emptyMessage="No category data available for this range"
+              formatCurrency={displayCurrency}
+            />
           </SectionCard>
           <SectionCard title="Spending by Asset Account" subtitle={rangeLabel} badge="Assets" badgeColor="green">
-            <CategoryDonutChart data={assetChartData} emptyMessage="No asset account data available for this range" />
+            <CategoryDonutChart
+              data={assetChartData}
+              emptyMessage="No asset account data available for this range"
+              formatCurrency={displayCurrency}
+            />
           </SectionCard>
         </Grid>
 
